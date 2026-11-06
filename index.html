@@ -1,0 +1,1080 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ワイン推理</title>
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-title" content="ワイン推理">
+<meta name="application-name" content="ワイン推理">
+<meta name="theme-color" content="#0A0A0B">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Shippori+Mincho+B1:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+:root{
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:dark;
+  --paper:#0A0A0B;--surface:#131315;--surface2:#1A1A1D;--ink:#E4E4E8;--muted:#8D8D95;--line:#2A2A2F;--line2:#3C3C43;
+  --claret:#B5475C;--straw:#CDB873;--on-acc:#0A0A0B;--tint:rgba(220,220,228,.06);
+  --silver:linear-gradient(180deg,#F7F7F9 0%,#CFCFD5 48%,#8F8F97 100%);
+  --acc:#D6D6DB;
+  --f-logo:"Cormorant Garamond","Shippori Mincho B1",Georgia,serif;
+  --f-head:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif;
+  --f-body:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans JP",system-ui,sans-serif;
+}
+/* 黒地に銀のデザインはライト・ダークどちらの設定でも同じ */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;
+  --paper:#0A0A0B;--surface:#131315;--surface2:#1A1A1D;--ink:#E4E4E8;--muted:#8D8D95;--line:#2A2A2F;--line2:#3C3C43;
+  --claret:#B5475C;--straw:#CDB873;--on-acc:#0A0A0B;--tint:rgba(220,220,228,.06);
+  --silver:linear-gradient(180deg,#F7F7F9 0%,#CFCFD5 48%,#8F8F97 100%);}}
+:root[data-theme="dark"]{color-scheme:dark;
+  --paper:#0A0A0B;--surface:#131315;--surface2:#1A1A1D;--ink:#E4E4E8;--muted:#8D8D95;--line:#2A2A2F;--line2:#3C3C43;
+  --claret:#B5475C;--straw:#CDB873;--on-acc:#0A0A0B;--tint:rgba(220,220,228,.06);
+  --silver:linear-gradient(180deg,#F7F7F9 0%,#CFCFD5 48%,#8F8F97 100%);}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased}
+body.w{--acc:#D6D6DB}
+.wrap{max-width:620px;margin:0 auto;padding:0 18px 48px}
+header{padding:22px 0 10px;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.brand{font-family:var(--f-head);font-size:22px;font-weight:700;letter-spacing:.02em;margin:0}
+.brand small{display:block;font-family:var(--f-body);font-size:12px;font-weight:500;color:var(--muted);letter-spacing:0}
+button{font:inherit;color:inherit;cursor:pointer}
+.link{background:none;border:0;padding:6px 0;color:var(--muted);font-size:13px;text-decoration:underline;text-underline-offset:3px}
+.link:focus-visible,.opt:focus-visible,.btn:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+h2{font-family:var(--f-head);font-weight:700;font-size:26px;line-height:1.4;margin:18px 0 10px}
+p{margin:0 0 12px}
+.muted{color:var(--muted)}
+.start-choice{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:22px 0}
+.glass{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:22px 16px 18px;text-align:left}
+.glass b{display:block;font-family:var(--f-head);font-size:24px}
+.glass span{font-size:13px;color:var(--muted)}
+.glass .dot{width:28px;height:28px;border-radius:50%;margin-bottom:12px}
+.glass.r .dot{background:#7C2035}.glass.w .dot{background:#E6C45E}
+.notes{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+.notes li{margin-bottom:4px}
+.resume{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+/* question */
+.prog{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);margin-top:4px}
+.bar{flex:1;height:3px;background:var(--line);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--acc);transition:width .25s}
+.sec{display:inline-block;font-size:12px;font-weight:700;color:var(--acc);margin-top:22px}
+.q{font-family:var(--f-head);font-size:23px;font-weight:700;line-height:1.45;margin:4px 0 6px}
+.help{font-size:13px;color:var(--muted);margin-bottom:16px}
+.opts{display:flex;flex-direction:column;gap:7px}
+.opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-height:48px;transition:border-color .12s}
+.opt .n{flex:none;width:22px;font-size:12px;color:var(--muted);text-align:right}
+.opt .lv{flex:none;display:flex;gap:2px}
+.opt .lv i{width:4px;height:14px;border-radius:1px;background:var(--line)}
+.opt .lv i.on{background:var(--acc)}
+.opt.sel{border-color:var(--acc);box-shadow:inset 0 0 0 1px var(--acc)}
+.opt.unk{background:transparent;border-style:dashed;color:var(--muted);margin-top:6px}
+.opt.unk.sel{color:var(--ink)}
+.nav{display:flex;justify-content:space-between;margin-top:18px}
+.note{font-size:13px;border-left:3px solid var(--acc);padding:6px 10px;margin:4px 0 10px;background:var(--tint);border-radius:0 8px 8px 0}
+.note.warn{border-left-color:var(--claret)}
+.hbtns{display:flex;gap:16px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stat b{display:block;font-family:var(--f-head);font-size:24px;line-height:1.2;color:var(--acc)}
+.stat span{font-size:12px;color:var(--muted)}
+.hitem{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:8px 0;display:flex;gap:12px;align-items:flex-start}
+.hitem .dot{flex:none;width:12px;height:12px;border-radius:50%;margin-top:7px}
+.hitem .dot.w{background:#E6C45E}.hitem .dot.r{background:#7C2035}
+.hitem .body{flex:1;min-width:0}
+.hitem .t{font-weight:700}
+.hitem .s{font-size:13px;color:var(--muted)}
+.hitem .acts{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.rank{display:inline-block;font-size:12px;border-radius:999px;padding:0 8px;border:1px solid var(--line);margin-left:4px}
+.rank.hit{border-color:var(--acc);color:var(--acc)}
+input[type=text]{font:inherit;width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);margin:6px 0}
+input[type=text]:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:6px 0 4px}
+.seg button{border:0;background:var(--surface);padding:8px 18px}
+.seg button.on{background:var(--acc);color:var(--on-acc);font-weight:700}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.filters select,.filters input{margin:0}
+.filters input{grid-column:1/-1}
+.libitem{display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:6px 0}
+.libitem b{display:block}.libitem span{font-size:13px;color:var(--muted)}
+.tt{width:100%;border-collapse:collapse;font-size:14px}
+.tt th{font-size:12px;color:var(--acc);text-align:left;padding:14px 0 4px;border-bottom:1px solid var(--line)}
+.tt td{padding:7px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.tt td:first-child{color:var(--muted);width:44%;padding-right:10px}
+.tt .lvb{display:flex;gap:2px;margin-top:4px}.tt .lvb i{width:12px;height:4px;border-radius:1px;background:var(--line)}.tt .lvb i.on{background:var(--acc)}
+.photo{margin-top:10px}
+.photo img{display:block;max-width:100%;max-height:320px;border-radius:10px;border:1px solid var(--line);margin-bottom:6px}
+.hitem .thumb{flex:none;width:44px;height:44px;object-fit:cover;border-radius:8px;background:var(--tint)}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:20}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+button{-webkit-tap-highlight-color:transparent}
+.a2hs{margin:4px 0 14px;font-size:14px}
+.a2hs ol{margin:8px 0 0;padding-left:20px}.a2hs li{margin-bottom:6px}
+.peek{margin-top:26px;border-top:1px solid var(--line);padding-top:12px;font-size:13px}
+.peek ol{margin:6px 0 0;padding-left:20px}
+/* result */
+.res-head{margin-top:18px}
+.cand{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 16px 14px;margin:12px 0}
+.cand.first{border-color:var(--acc)}
+.cand .top{display:flex;align-items:baseline;gap:14px}
+.pct{font-family:var(--f-head);font-size:40px;font-weight:700;line-height:1;color:var(--acc);min-width:88px}
+.pct small{font-size:18px}
+.cname{font-family:var(--f-head);font-size:21px;font-weight:700;line-height:1.35}
+.cmeta{font-size:13px;color:var(--muted)}
+.pbar{height:6px;background:var(--tint);border-radius:3px;margin:12px 0 10px;overflow:hidden}
+.pbar i{display:block;height:100%;background:var(--acc)}
+dl{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin:8px 0 0;font-size:13.5px}
+dt{color:var(--muted)}dd{margin:0}
+.ev{font-size:13px;margin-top:10px}
+.ev b{font-weight:700}
+.chip{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:1px 9px;margin:2px 4px 2px 0;font-size:12.5px}
+.chip.neg{border-style:dashed;color:var(--muted)}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:14px 0;font-size:14px}
+.box h3{font-size:15px;margin:0 0 8px}
+.box ul{margin:0;padding-left:18px}.box li{margin-bottom:6px}
+.others{font-size:14px}
+.others li{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:6px 0}
+.others ol{list-style:none;margin:0;padding:0}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.btn{border:1px solid var(--acc);background:var(--acc);color:var(--on-acc);border-radius:10px;padding:10px 16px;font-weight:700}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+select{font:inherit;width:100%;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);margin:6px 0}
+details{margin-top:12px;font-size:13.5px}
+details summary{cursor:pointer;color:var(--muted)}
+.ans{display:grid;grid-template-columns:1fr auto;gap:2px 10px;margin-top:8px}
+.ans span:nth-child(even){color:var(--muted);text-align:right}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ===== Noir & Argent ===== */
+body{background:radial-gradient(120% 60% at 50% -10%,#1C1C20 0%,var(--paper) 60%) fixed,var(--paper);letter-spacing:.01em}
+.silver,h2,.q,.pct,.cname,.glass b,.stat b,.wm{background:var(--silver);-webkit-background-clip:text;background-clip:text;color:transparent}
+header{align-items:center;flex-wrap:wrap;row-gap:4px;padding:20px 0 14px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.wm{white-space:nowrap}.wm small{white-space:nowrap}
+.hbtns{margin-left:auto}
+.brand{display:flex;align-items:center;gap:12px;font-weight:600;min-width:0}
+.hbtns{flex:none}.hbtns .link{white-space:nowrap}
+.brand .emb{width:42px;height:42px;flex:none}
+.wm{font-family:var(--f-logo);font-size:21px;font-weight:600;letter-spacing:.24em;line-height:1.1}
+.wm small{display:block;font-family:var(--f-body);font-size:10.5px;font-weight:500;letter-spacing:.18em;margin-top:4px;background:none;-webkit-background-clip:border-box;background-clip:border-box;color:var(--muted)}
+h2{font-weight:700;letter-spacing:.03em}
+.link{color:var(--muted);text-decoration-color:var(--line2)}
+.link:hover{color:var(--ink)}
+.glass,.resume,.cand,.box,.stat,.hitem,.libitem,.opt{background:linear-gradient(180deg,var(--surface2),var(--surface));border-color:var(--line)}
+.glass{position:relative;overflow:hidden}
+.glass::after{content:"";position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent)}
+.glass .dot,.hitem .dot{box-shadow:0 0 0 1px rgba(255,255,255,.25),inset 0 -6px 10px rgba(0,0,0,.35)}
+.glass.r .dot,.hitem .dot.r{background:#6E1D30}.glass.w .dot,.hitem .dot.w{background:#C9B36A}
+.glass:hover,.opt:hover,.libitem:hover{border-color:var(--line2)}
+.opt{color:var(--ink)}
+.opt.sel{border-color:#CFCFD5;box-shadow:0 0 0 1px #CFCFD5,0 0 18px rgba(220,220,228,.12);background:linear-gradient(180deg,#202024,#17171A)}
+.opt.unk{background:transparent;border-color:var(--line2)}
+.opt .lv i{background:var(--line2)}.opt .lv i.on,.tt .lvb i.on{background:var(--silver)}
+.bar{background:var(--line)}.bar i,.pbar i{background:var(--silver)}
+.pbar{background:var(--tint)}
+.sec,.tt th{color:var(--muted);letter-spacing:.2em;font-size:11px;text-transform:uppercase}
+.cand.first{border-color:#9A9AA2;box-shadow:0 0 0 1px rgba(207,207,213,.25),0 10px 30px rgba(0,0,0,.45)}
+.btn{background:var(--silver);color:var(--on-acc);border:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 2px 10px rgba(0,0,0,.4);letter-spacing:.05em}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line2);box-shadow:none}
+.chip{border-color:var(--line2);color:var(--ink)}.chip.neg{color:var(--muted)}
+.rank{border-color:var(--line2)}.rank.hit{border-color:#CFCFD5;color:var(--ink)}
+.seg{border-color:var(--line2)}.seg button{background:var(--surface);color:var(--muted)}.seg button.on{background:var(--silver);color:var(--on-acc)}
+select,input[type=text]{background:var(--surface);border-color:var(--line2);color:var(--ink)}
+.note{background:var(--surface);border-left-color:#CFCFD5}.note.warn{border-left-color:var(--claret)}
+#toast{background:var(--silver);color:var(--on-acc)}
+.notes{border-top-color:var(--line)}
+details summary{color:var(--muted)}
+.link:focus-visible,.opt:focus-visible,.btn:focus-visible,select:focus-visible,input:focus-visible,.glass:focus-visible,.libitem:focus-visible{outline:2px solid #CFCFD5;outline-offset:2px}
+@media (max-width:380px){.wm{font-size:18px;letter-spacing:.18em}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="brand"><svg class="emb" aria-hidden="true" viewBox="0 0 512 512" width="40" height="40" xmlns="http://www.w3.org/2000/svg"><defs> <linearGradient id="mhd" gradientUnits="userSpaceOnUse" x1="60" y1="40" x2="420" y2="470"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.18" stop-color="#B9BDC4"/><stop offset="0.36" stop-color="#F4F5F7"/><stop offset="0.55" stop-color="#5F636B"/><stop offset="0.72" stop-color="#DCDEE2"/><stop offset="0.9" stop-color="#80848C"/><stop offset="1" stop-color="#EEEFF1"/></linearGradient> <linearGradient id="whd" gradientUnits="userSpaceOnUse" x1="0" y1="160" x2="0" y2="250"><stop offset="0" stop-color="#7A1830"/><stop offset=".55" stop-color="#3E0814"/><stop offset="1" stop-color="#1E030A"/></linearGradient> <filter id="bvhd" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">  <feGaussianBlur in="SourceAlpha" stdDeviation="3.2" result="b"/>  <feDiffuseLighting in="b" surfaceScale="6" diffuseConstant="1.05" lighting-color="#fff" result="d"><feDistantLight azimuth="225" elevation="52"/></feDiffuseLighting>  <feComposite in="SourceGraphic" in2="d" operator="arithmetic" k1="1.15" k2="0" k3="0" k4="0" result="lit"/>  <feSpecularLighting in="b" surfaceScale="6" specularConstant="1.25" specularExponent="34" lighting-color="#fff" result="s"><feDistantLight azimuth="225" elevation="40"/></feSpecularLighting>  <feComposite in="s" in2="SourceAlpha" operator="in" result="sIn"/>  <feComposite in="lit" in2="sIn" operator="arithmetic" k1="0" k2="1" k3=".85" k4="0" result="out"/>  <feComposite in="out" in2="SourceAlpha" operator="in"/> </filter> <filter id="shhd" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000" flood-opacity=".7"/></filter></defs><g filter="url(#shhd)"> <path d="M155 172 H277 C273 218 251 246 216 246 C181 246 159 218 155 172 Z" fill="url(#whd)"/><path d="M161 176 H271" stroke="#C94A64" stroke-width="3" opacity=".55"/> <g filter="url(#bvhd)" fill="none" stroke="url(#mhd)" stroke-linecap="round" stroke-linejoin="round">  <circle cx="216" cy="216" r="158" stroke-width="26"/>  <circle cx="216" cy="216" r="129" stroke-width="5"/>  <path d="M332 332 L446 446" stroke-width="46"/>  <path d="M146 120 H286 C286 200 258 254 216 254 C174 254 146 200 146 120 Z" stroke-width="12"/>  <path d="M216 254 V318" stroke-width="12"/>  <path d="M176 322 H256" stroke-width="12"/> </g> <path d="M80 150 A158 158 0 0 1 150 74" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".55"/></g></svg><span class="wm">DEDUCTION<small>ワイン推理ナビ</small></span></p>
+    <div class="hbtns"><button class="link" id="libBtn">逆引き</button><button class="link" id="histBtn">履歴</button><button class="link" id="home" hidden>最初に戻る</button></div>
+  </header>
+  <main id="app"></main>
+</div>
+<script>
+/* ===== 問い（Carnet-du-Vin の尺度に準拠） ===== */
+const PRES = ['感じない','少し感じる','はっきり感じる'];
+const pr = (k,q,h,x={}) => ({k,s:'香り',t:'o',q,h,o:PRES,sd:.75,neg:.35,...x});
+const QS = {
+ w: [
+  {k:'hue',s:'外観',t:'o',q:'メインの色調は？',h:'白い紙の上でグラスを傾け、中心の色を見ます。',o:['レモンイエロー','イエロー','黄金色','トパーズ・それより濃い']},
+  {k:'tint',s:'外観',t:'c',q:'縁に見える補助的な色合いは？',h:'グラスの縁、液面の端を見ます。',o:[['silver','シルバーがかった'],['green','グリーンがかった'],['gold','黄金色がかった'],['none','どれもはっきりしない']],w:.6},
+  {k:'depth',s:'外観',t:'o',q:'濃淡は？',h:'',o:['無色に近い','淡い','やや濃い','濃い','非常に濃い']},
+  {k:'visc',s:'外観',t:'o',q:'粘性は？',h:'グラスを回したあと、脚（涙）の太さと落ちる速さを見ます。',o:['さらっとした','適度な','やや強い','ねっとりとした']},
+  {k:'young',s:'外観',t:'o',q:'外観の印象（若さ）は？',h:'',o:['若々しい','やや発展した','熟成のニュアンスが見える','熟成した'],w:.6},
+  {k:'nose',s:'香り',t:'o',q:'香りの第一印象（強さ）は？',h:'グラスを回す前に一度、回してからもう一度嗅ぎます。',o:['閉じている','控えめ','開いている','力強い']},
+  {k:'fruit',s:'香り',t:'o',q:'中心にある果実の熟度は？',h:'一番はっきりした果実を選びます（練習帳の熟度の並び）。',o:['柑橘類・青リンゴ','リンゴ・洋梨','白桃・アプリコット','パイナップル・マンゴー・パッションフルーツ']},
+  pr('flower','白い花（スイカズラ・アカシア・菩提樹など）は？',''),
+  pr('herb','ハーブ・青草・ミントなど青い香りは？','ヴェルヴェーヌ、タイム、芽のような青さも含めます。'),
+  pr('mineral','ミネラル（石灰・貝殻・鉱物・海の香り）は？',''),
+  pr('reduct','火打石・マッチを擦ったような香りは？','還元的な造りのサインです。硫黄のような香りも含めます。'),
+  pr('terpene','マスカット・ライチ・バラのような甘く華やかな香りは？',''),
+  pr('oak','樽（トースト・ヴァニラ・煙）は？','大樽や古樽では感じにくいので、感じなくても樽なしとは限りません。',{neg:.55}),
+  pr('dairy','乳製品・バターの香りは？','マロラクティック発酵の目安です。'),
+  pr('yeast','パン・ド・ミ・酵母の香りは？','シュール・リーの目安です。'),
+  pr('honey','蜂蜜・花梨・ワックス・蜜蝋は？',''),
+  pr('petrol','ペトロール（ケロセン）は？',''),
+  pr('wspice','白胡椒・コリアンダーシードなどのスパイスは？',''),
+  {k:'char',s:'香り',t:'c',q:'香りの特性で一番近いものは？',h:'',o:[['p1','第1アロマが強い'],['p2','第2アロマが強い'],['neutral','ニュートラル'],['oak','木樽からのニュアンス'],['ripe','成熟度が高い']],w:.6},
+  {k:'sweet',s:'味わい',t:'o',q:'甘みは？',h:'アルコールのボリューム感も含めます。',o:['ドライ','ソフトな','まろやか','豊かな','残糖がある']},
+  {k:'attack',s:'味わい',t:'o',q:'アタックは？',h:'',o:['軽い','やや軽い','やや強い','強い','インパクトのある']},
+  {k:'acid',s:'味わい',t:'o',q:'酸味は？',h:'弱い順に並んでいます。',o:['なめらかな','軽やかな','爽やかな','はつらつとした','力強い','直線的','堅固な'],sd:1.1},
+  {k:'bitter',s:'味わい',t:'o',q:'苦味は？',h:'',o:['控えめ','穏やかな','コク（深み）を与える','旨味をともなった','強い（突出した）']},
+  {k:'salty',s:'味わい',t:'o',q:'塩気のようなミネラル感は？',h:'後味に残る塩っぽさ、潮の感じです。',o:PRES,sd:.75,neg:.35},
+  {k:'alc',s:'味わい',t:'o',q:'アルコールは？',h:'',o:['11%未満','11%～12%未満','12%～13%未満','13%～14%未満','14%以上']},
+  {k:'finish',s:'味わい',t:'o',q:'余韻は？',h:'',o:['短い','やや短い','やや長い','長い']},
+  {k:'bal',s:'味わい',t:'c',q:'バランスは？',h:'練習帳のバランス図の位置で選びます。',o:[['LU','スリム・ドライ・抑制された（左上）'],['RU','ジューシー・豊潤・厚みのある（右上）'],['RD','まろやか・ねっとりした（右下）'],['LD','スムーズ・コンパクト（左下）']],w:.7},
+  {k:'eval',s:'総合',t:'o',q:'評価は？',h:'軽い順に並んでいます。',o:['シンプル、フレッシュ感を楽しむ','エレガントでミネラリー','なめらかでバランスが良い','成熟度が高く豊か','濃縮し力強い','ポテンシャルの高い'],w:.6}
+ ],
+ r: [
+  {k:'hue',s:'外観',t:'c',q:'メインの色調は？',h:'白い紙の上でグラスを傾け、中心から縁にかけての色を見ます。',o:[['rasp','ラズベリーレッド'],['ruby','ルビー'],['garnet','ガーネット'],['dcherry','ダークチェリーレッド'],['brick','レンガ・マホガニー・トパーズ']]},
+  {k:'tint',s:'外観',t:'c',q:'補助的な色合いは？',h:'縁の色を見ます。',o:[['purple','紫がかった'],['orange','オレンジがかった'],['black','黒みを帯びた'],['rim','縁が明るい'],['none','どれもはっきりしない']],w:.6},
+  {k:'depth',s:'外観',t:'o',q:'濃淡は？',h:'グラス越しに指や文字が見えるかで判断します。',o:['淡い','明るい','やや明るい','やや濃い','濃い','非常に濃い']},
+  {k:'visc',s:'外観',t:'o',q:'粘性は？',h:'',o:['さらっとした','やや軽い','やや強い','強い']},
+  {k:'young',s:'外観',t:'o',q:'外観の印象（若さ）は？',h:'',o:['若々しい','若い状態を抜けた','やや熟成した','熟成した'],w:.6},
+  {k:'nose',s:'香り',t:'o',q:'香りの第一印象（強さ）は？',h:'',o:['閉じている','控えめ','開いている','強い']},
+  {k:'fcolor',s:'香り',t:'o',q:'果実の色の系統は？',h:'',o:['赤い果実（イチゴ・ラズベリー）','赤と黒の中間（チェリー）','黒い果実（カシス・ブラックベリー・ブルーベリー）']},
+  {k:'fstate',s:'香り',t:'o',q:'果実の状態は？',h:'',o:['フレッシュ','よく熟した','ジャム・コンポート','干した果実（干しプラム・乾燥イチジク）']},
+  pr('flower','花（スミレ・バラ・牡丹）は？',''),
+  pr('green','ピーマン・青い茎のような香りは？',''),
+  pr('mint','ミント・ユーカリ・メントールは？',''),
+  pr('cedar','杉・針葉樹・シダ・ローリエは？',''),
+  pr('pepper','黒胡椒は？',''),
+  pr('sweetspice','丁子・シナモン・ナツメグ・甘草などの甘いスパイスは？',''),
+  pr('olive','黒オリーブ・グリエ・燻製肉は？',''),
+  pr('tomato','トマト・ドライハーブ・紅茶・タバコは？',''),
+  pr('earth','キノコ・土・スーボア（森の下草）は？',''),
+  pr('animal','なめし皮・鉄分・動物的なニュアンスは？',''),
+  pr('candy','イチゴキャンディ・バナナ・綿菓子のような甘い香りは？','マセラシオン・カルボニックやマスカット・ベーリーAの目安です。'),
+  pr('oak','樽（ヴァニラ・ロースト・コーヒー・チョコレート）は？','大樽や古樽では感じにくいので、感じなくても樽なしとは限りません。',{neg:.55}),
+  pr('coconut','ココナッツ・ディルは？','アメリカンオークの目安です。',{neg:.55}),
+  {k:'char',s:'香り',t:'c',q:'香りの特性で一番近いものは？',h:'',o:[['p1','第1アロマが強い'],['p2','第2アロマが強い'],['neutral','ニュートラル'],['oak','木樽からのニュアンス']],w:.6},
+  {k:'sweet',s:'味わい',t:'o',q:'甘みは？',h:'アルコールのボリューム感も含めます。',o:['ドライ','ソフトな','まろやか','豊かな','残糖がある']},
+  {k:'attack',s:'味わい',t:'o',q:'アタックは？',h:'',o:['軽い','やや軽い','やや強い','強い','インパクトのある']},
+  {k:'acid',s:'味わい',t:'o',q:'酸味は？',h:'弱い順に並んでいます。',o:['なめらかな','軽やかな','爽やかな','生き生きとした','しなやかな','力強い','直線的','堅固な'],sd:1.2},
+  {k:'tannin',s:'味わい',t:'o',q:'タンニン分は？',h:'弱い順に並んでいます。',o:['サラサラとした','シルキーな','ヴィロードのような','溶け込んだ','緻密','力強い','収斂性のある'],sd:1.1},
+  {k:'grip',s:'味わい',t:'o',q:'タンニンの粒の感じは？',h:'歯ぐきや舌に残る感触です。',o:['きめ細かくなめらか','ふつう','ざらつく・粗い'],sd:.75},
+  {k:'alc',s:'味わい',t:'o',q:'アルコールは？',h:'',o:['11%未満','11%～12%未満','12%～13%未満','13%～14%未満','14%以上']},
+  {k:'finish',s:'味わい',t:'o',q:'余韻は？',h:'',o:['短い','やや短い','やや長い','長い']},
+  {k:'bal',s:'味わい',t:'c',q:'バランスは？',h:'練習帳のバランス図の位置で選びます。',o:[['LU','スマート・骨格のしっかりとした・堅固な（左上）'],['RU','ジューシー・豊満・力強い（右上）'],['D','流れるような・ふくよかな（下）']],w:.7},
+  {k:'eval',s:'総合',t:'o',q:'評価は？',h:'軽い順に並んでいます。',o:['シンプル、フレッシュ感を楽しむ','エレガントで余韻の長い','複雑性があり引き締まった','成熟度が高く豊か','濃縮し力強い'],w:.6}
+ ]
+};
+
+/* ===== 候補ワイン（1万円未満・大会や2次試験で出やすいもの） ===== */
+const DEF = {
+ w:'hue .8 tint=none:.4,green:.3,silver:.2,gold:.1 depth 1.3 visc 1.2 young .3 nose 1.8 fruit 1.2 flower .6 terpene .2 herb .5 mineral .8 reduct .3 oak .3 dairy .2 yeast .2 honey .3 petrol .05 wspice .2 char=p1:.5,neutral:.2,p2:.1,oak:.1,ripe:.1 sweet .7 attack 1.8 acid 3.4 bitter 1.2 salty .5 alc 2.2 finish 1.8 bal=LU:.35,RU:.3,RD:.15,LD:.2 eval 1.5',
+ r:'hue=ruby:.5,garnet:.3 tint=none:.5 depth 2.8 visc 1.6 young .6 nose 2 fcolor 1.2 fstate 1.4 flower .4 green .3 mint .2 cedar .3 pepper .3 sweetspice .5 olive .2 tomato .3 earth .5 animal .3 candy .1 oak 1 coconut .2 char=p1:.4,oak:.3,p2:.2,neutral:.1 sweet 1.2 attack 2.2 acid 3.8 tannin 3 grip .8 alc 2.8 finish 2 bal=LU:.4,RU:.4,D:.3 eval 2'
+};
+// [id, 色, 表示名, 品種, 国, 産地（部分点狙い）, 別の書き方, 例, 事前確率, 特徴]
+const RAW = [
+ ['chablis','w','シャブリ','シャルドネ','フランス','シャブリ','ブルゴーニュ','ル・ドメーヌ・ダンリ（第5回予選）',1.3,'hue .3 tint=green:.5,silver:.3,none:.2 depth 1 visc 1 nose 1.4 fruit .7 flower .6 terpene 0 herb .4 mineral 1.8 reduct .7 oak .2 dairy .5 yeast .4 honey .2 char=p1:.4,neutral:.4,p2:.2 sweet .3 attack 1.6 acid 4.5 bitter 1.2 salty 1 alc 2 finish 2 bal=LU:.6,LD:.3 eval 1'],
+ ['bourg-ch','w','ブルゴーニュ・ブラン（樽熟成）','シャルドネ','フランス','ブルゴーニュ','ムルソーなどコート・ド・ボーヌの村名','',1.1,'hue 1.1 tint=gold:.5,none:.3 depth 2 visc 1.8 nose 2 fruit 1.4 flower .5 mineral 1.2 reduct .8 oak 1.4 dairy 1.2 yeast .6 honey .5 char=oak:.5,p2:.3,ripe:.2 sweet 1.2 attack 2.2 acid 3.6 bitter 1.6 alc 2.6 finish 2.4 bal=RU:.5,LU:.3,RD:.2 eval 3'],
+ ['ca-ch','w','カリフォルニア・シャルドネ','シャルドネ','アメリカ','カリフォルニア','ソノマ・コースト、ナパ・ヴァレー','',.9,'hue 1.7 tint=gold:.7 depth 2.7 visc 2.5 nose 2.6 fruit 2.6 flower .5 mineral .3 reduct .2 oak 1.9 dairy 1.6 honey .8 char=oak:.6,ripe:.4 sweet 2.4 attack 3 acid 2.2 bitter 1.2 salty .2 alc 3.6 finish 2.4 bal=RD:.5,RU:.5 eval 3.3'],
+ ['cl-ch','w','チリ・シャルドネ','シャルドネ','チリ','カサブランカ・ヴァレー','リマリ・ヴァレー','ラポストール（第2回）',.9,'hue 1.1 tint=gold:.3,green:.3,none:.3 depth 2 visc 2 nose 2.2 fruit 2.1 mineral .6 oak 1.1 dairy .8 honey .4 char=ripe:.4,p1:.3,oak:.3 sweet 1.6 attack 2.4 acid 3.4 alc 3 finish 2 bal=RU:.6,RD:.2 eval 2.6'],
+ ['jp-ch','w','日本のシャルドネ','シャルドネ','日本','長野','山梨','第4回予選に出題',.9,'hue .7 depth 1.2 visc 1.2 nose 1.3 fruit 1.2 flower .5 mineral .7 oak .8 dairy .6 char=neutral:.4,p1:.3,oak:.3 sweet .8 attack 1.4 acid 2.8 bitter 1.6 alc 1.9 finish 1.6 bal=LD:.6,LU:.2,RD:.2 eval 1.8'],
+ ['au-ch','w','オーストラリア・シャルドネ（冷涼産地）','シャルドネ','オーストラリア','ヤラ・ヴァレー','マーガレット・リヴァー、アデレード・ヒルズ','',.6,'hue .8 depth 1.6 visc 1.6 nose 2 fruit 1.8 mineral .8 reduct 1.3 oak 1.2 dairy .5 char=p1:.4,oak:.4 sweet 1 attack 2.2 acid 3.8 alc 2.8 finish 2.2 bal=LU:.45,RU:.45 eval 2.6'],
+ ['nz-sb','w','マールボロのソーヴィニヨン・ブラン','ソーヴィニヨン・ブラン','ニュージーランド','マールボロ','','',1.1,'hue .1 tint=green:.7,silver:.2 depth 1 visc 1 nose 3 fruit 2.4 flower .3 herb 2 mineral .4 reduct .4 oak .05 dairy .05 char=p1:.9 sweet .7 attack 2.2 acid 4.4 bitter .8 salty .4 alc 2.6 finish 1.8 bal=RU:.5,LU:.4 eval .6'],
+ ['sancerre','w','サンセール','ソーヴィニヨン・ブラン','フランス','サンセール','プイィ・フュメ','コント・ラフォン（第5回予選）、ミシェル・トマ（第2回）',1.2,'hue .2 tint=green:.5,silver:.4 depth .9 visc 1 nose 1.8 fruit .8 herb 1.3 mineral 1.9 reduct 1.4 oak .1 char=p1:.6,neutral:.3 sweet .3 attack 1.8 acid 4.6 bitter 1.1 salty .8 alc 2.2 finish 2 bal=LU:.7,LD:.2 eval 1.1'],
+ ['cl-sb','w','チリのソーヴィニヨン・ブラン','ソーヴィニヨン・ブラン','チリ','レイダ・ヴァレー','カサブランカ・ヴァレー','',.8,'hue .2 tint=green:.6,silver:.3 depth 1 nose 2.4 fruit 1.6 herb 1.8 mineral 1 reduct .5 oak .05 char=p1:.8 sweet .6 attack 2 acid 4.2 salty .7 alc 2.6 bal=LU:.5,RU:.4 eval .8'],
+ ['bdx-bl','w','ボルドー・ブラン','ソーヴィニヨン・ブラン主体（セミヨンとブレンド）','フランス','ボルドー','ペサック・レオニャン','',.6,'hue .9 depth 1.6 visc 1.6 nose 2 fruit 1.4 herb 1 oak 1.2 honey .7 dairy .5 char=oak:.4,p1:.4 sweet 1 attack 2 acid 3.2 alc 2.4 finish 2 bal=RU:.5,LU:.3 eval 2.2'],
+ ['mosel','w','モーゼルのリースリング','リースリング','ドイツ','モーゼル','','',1.1,'hue .3 tint=green:.6,silver:.3 depth .8 visc 1.2 nose 2.2 fruit 1 flower 1.2 terpene .6 herb .2 mineral 1.5 petrol .6 honey .4 char=p1:.8 sweet 2.6 attack 1.3 acid 5.2 bitter .6 salty .4 alc .4 finish 2.2 bal=LU:.4,RU:.4 eval 1.2'],
+ ['rheingau','w','ドイツの辛口リースリング','リースリング','ドイツ','ラインガウ','ファルツ','ロバート・ヴァイル（第3回予選）、デンホフ（第2回・ナーエ）',1,'hue .5 tint=green:.4,none:.3 depth 1.2 nose 2 fruit 1.2 flower 1 terpene .4 mineral 1.4 petrol .7 honey .4 char=p1:.8 sweet .9 attack 2 acid 5 alc 2.2 finish 2.2 bal=LU:.7 eval 1.6'],
+ ['alsace-ri','w','アルザスのリースリング','リースリング','フランス','アルザス','','',.8,'hue .8 tint=gold:.3,none:.4 depth 1.6 visc 1.8 nose 2.2 fruit 1.4 flower 1 terpene .4 mineral 1.4 petrol .9 honey .7 char=p1:.6,ripe:.3 sweet 1.4 attack 2.6 acid 4.4 alc 3 finish 2.4 bal=RU:.4,LU:.4 eval 2.6'],
+ ['clare','w','クレア・ヴァレーのリースリング','リースリング','オーストラリア','クレア・ヴァレー','イーデン・ヴァレー','',.8,'hue .3 tint=green:.7 depth 1 nose 2.4 fruit .4 flower .8 terpene .3 herb .3 mineral 1.4 petrol 1.4 honey .2 char=p1:.8 sweet .1 attack 2 acid 5.6 bitter .8 alc 2 finish 2 bal=LU:.9 eval 1.2'],
+ ['gewurz','w','ゲヴュルツトラミネール','ゲヴュルツトラミネール','フランス','アルザス','','',.8,'hue 1.6 tint=gold:.6 depth 2.4 visc 2.6 nose 3 fruit 2.4 flower 2 terpene 2 herb .1 mineral .3 wspice 1 honey .8 char=p1:.8,ripe:.2 sweet 2.6 attack 2.8 acid 1.4 bitter 1.8 salty .2 alc 3.4 finish 2.4 bal=RD:.7,RU:.3 eval 2.8'],
+ ['viognier','w','ヴィオニエ','ヴィオニエ','フランス','コンドリュー','コート・デュ・ローヌ、ペイ・ドック','',.7,'hue 1.4 tint=gold:.5 depth 2 visc 2.4 nose 2.8 fruit 2 flower 1.8 terpene .8 mineral .3 honey .7 oak .5 char=p1:.6,ripe:.4 sweet 2 attack 2.8 acid 1.6 bitter 1.6 alc 3.6 finish 2.2 bal=RD:.7,RU:.3 eval 2.8'],
+ ['torrontes','w','トロンテス','トロンテス','アルゼンチン','サルタ','カファジャテ','エル・エステコ（第5回予選）',.9,'hue .5 depth 1.2 nose 3 fruit 1.6 flower 2 terpene 1.9 herb .3 mineral .4 char=p1:.9 sweet .8 attack 2 acid 3.4 bitter 2 alc 3 finish 1.6 bal=LU:.4,RU:.4 eval 1.2'],
+ ['albarino','w','アルバリーニョ','アルバリーニョ','スペイン','リアス・バイシャス','','',.9,'hue .4 tint=green:.5,silver:.3 depth 1 nose 2.2 fruit 1.8 flower 1.2 terpene .4 mineral 1.2 salty 1.8 char=p1:.8 sweet .6 attack 2 acid 4.2 bitter 1.4 alc 2.6 finish 1.8 bal=LU:.45,RU:.45 eval 1.2'],
+ ['gruner','w','グリューナー・ヴェルトリーナー','グリューナー・ヴェルトリーナー','オーストリア','ニーダーエスターライヒ','ヴァッハウ、カンプタール','',.8,'hue .3 tint=green:.7 depth 1.1 nose 1.8 fruit 1.2 flower .6 herb 1.2 wspice 1.8 mineral 1.1 char=p1:.7,neutral:.2 sweet .4 attack 1.8 acid 4 bitter 1.6 alc 2.4 finish 1.8 bal=LU:.6 eval 1.2'],
+ ['muscadet','w','ミュスカデ','ミュスカデ（ムロン・ド・ブルゴーニュ）','フランス','ミュスカデ・セーヴル・エ・メーヌ','ミュスカデ','第1回・第4回予選に出題',1.1,'hue .05 tint=silver:.6,green:.4 depth .5 visc .6 nose 1 fruit .4 flower .3 herb .3 mineral 1.6 reduct .4 yeast 1.4 char=neutral:.5,p2:.4 sweet .1 attack 1 acid 4.4 bitter 1 salty 1.8 alc 1.2 finish 1 bal=LU:.5,LD:.4 eval .4'],
+ ['koshu','w','甲州（シュール・リー／タンク熟成）','甲州','日本','山梨','勝沼、山形、大阪','ココファーム（第3回予選）',1.1,'hue .05 tint=silver:.7,green:.2 depth .5 visc .7 nose 1 fruit .6 flower .5 herb .3 mineral .8 yeast .8 char=neutral:.6,p2:.2 sweet .4 attack .8 acid 2.6 bitter 2.6 salty .8 alc 1.2 finish 1.2 bal=LD:.6,LU:.3 eval .6'],
+ ['aligote','w','ブルゴーニュ・アリゴテ','アリゴテ','フランス','ブルゴーニュ・アリゴテ','','第1回に出題',.7,'hue .2 tint=green:.4,silver:.4 depth .8 nose 1.2 fruit .6 mineral 1.2 char=neutral:.5,p1:.4 sweet .2 attack 1.5 acid 5 bitter 1 alc 1.8 finish 1.4 bal=LU:.7 eval .6'],
+ ['vouvray','w','ヴーヴレ','シュナン・ブラン','フランス','ヴーヴレ','サヴニエール、アンジュー','',.9,'hue 1 depth 1.6 visc 1.6 nose 2 fruit 1.4 flower .8 mineral 1.2 honey 1.6 oak .3 char=p1:.6,ripe:.3 sweet 1.6 attack 2 acid 5 bitter 1.2 alc 2.2 finish 2.2 bal=LU:.4,RU:.4 eval 2'],
+ ['stb-chenin','w','ステレンボッシュのシュナン・ブラン','シュナン・ブラン','南アフリカ','ステレンボッシュ','','ステレンラスト（第2回・第3回予選）',1,'hue 1.2 tint=gold:.4 depth 2 visc 2 nose 2.2 fruit 1.8 flower .6 honey 1.4 oak 1.2 dairy .6 char=ripe:.4,oak:.3,p1:.3 sweet 1.4 attack 2.4 acid 3.6 alc 3 finish 2.2 bal=RU:.6 eval 2.6'],
+ ['swt-chenin','w','スワートランドのシュナン・ブラン','シュナン・ブラン','南アフリカ','スワートランド','','',.6,'hue .9 depth 1.6 nose 1.8 fruit 1.6 honey 1.1 mineral 1 oak .5 yeast .5 char=p1:.4,p2:.3,neutral:.3 sweet .8 attack 2.2 acid 3.8 bitter 1.6 alc 2.8 bal=RU:.4,LU:.35 eval 2.4'],
+ ['hunter','w','ハンター・ヴァレーのセミヨン','セミヨン','オーストラリア','ハンター・ヴァレー','','',.5,'hue .2 tint=green:.6 depth .7 nose 1.2 fruit .6 herb .6 mineral .8 char=neutral:.5,p1:.4 sweet .2 attack 1.2 acid 4.6 bitter .8 alc .9 finish 1.6 bal=LU:.7 eval .9'],
+ ['pg-alsace','w','アルザスのピノ・グリ','ピノ・グリ','フランス','アルザス','','',.5,'hue 1.4 tint=gold:.5 depth 2.2 visc 2.4 nose 2.2 fruit 2 honey 1 wspice .6 reduct .4 char=ripe:.6 sweet 2.4 attack 2.6 acid 2.4 bitter 1.8 alc 3.2 finish 2.2 bal=RD:.6,RU:.4 eval 2.6'],
+ ['pgrigio','w','ピノ・グリージョ','ピノ・グリージョ','イタリア','フリウリ','ヴェネト','',.5,'hue .3 depth .8 nose 1 fruit 1 mineral .6 char=neutral:.6 sweet .6 attack 1.4 acid 2.8 bitter 1.8 alc 2.2 finish 1.2 bal=LD:.6 eval .6'],
+ ['soave','w','ソアーヴェ','ガルガーネガ','イタリア','ソアーヴェ','','',.4,'hue .5 depth 1.1 nose 1.4 fruit 1.4 flower 1.2 mineral .8 char=p1:.5,neutral:.4 sweet .7 attack 1.6 acid 2.8 bitter 2 alc 2.2 bal=LD:.5,RD:.3 eval 1'],
+ ['gavi','w','ガヴィ','コルテーゼ','イタリア','ガヴィ','','',.4,'hue .2 tint=green:.5 depth .8 nose 1.2 fruit .8 flower .8 mineral 1 char=neutral:.5,p1:.4 sweet .3 attack 1.6 acid 3.8 bitter 2 alc 2.1 bal=LU:.6 eval .8'],
+ ['assyrtiko','w','サントリーニのアシルティコ','アシルティコ','ギリシャ','サントリーニ','','',.4,'hue .5 depth 1.2 nose 1.4 fruit .8 mineral 2 reduct .8 salty 2 char=p1:.4,neutral:.4 sweet .3 attack 2.6 acid 5.4 bitter 1.8 alc 3 finish 2.4 bal=LU:.7 eval 2'],
+ ['verdejo','w','ベルデホ','ベルデホ','スペイン','ルエダ','','',.4,'hue .4 tint=green:.6 depth 1.1 nose 2 fruit 1.4 herb 1.6 char=p1:.8 sweet .6 attack 2 acid 3.4 bitter 2.2 alc 2.6 bal=LU:.45,RU:.45 eval .8'],
+
+ ['mueller','w','ミュラー・トゥルガウ（辛口）','ミュラー・トゥルガウ','ドイツ','ラインヘッセン','フランケン、バーデン（日本なら北海道）','',.5,'hue .3 tint=green:.5,silver:.3,none:.2 depth .8 visc .9 nose 1.6 fruit .9 flower 1.1 terpene .7 herb .6 mineral .6 reduct .1 oak .05 dairy .05 yeast .2 honey .2 char=p1:.7,neutral:.3 sweet .5 attack 1.3 acid 2.8 bitter 1.2 salty .3 alc 1.6 finish 1.2 bal=LD:.5,LU:.3,RU:.2 eval .4'],
+ ['silvaner','w','シルヴァーナー','シルヴァーナー','ドイツ','フランケン','ラインヘッセン','',.5,'hue .4 tint=green:.4,none:.4 depth 1 visc 1 nose 1.2 fruit 1 flower .4 terpene .1 herb .9 mineral 1.2 oak .1 char=neutral:.5,p1:.4 sweet .4 attack 1.6 acid 3.4 bitter 1.6 salty .7 alc 2.2 finish 1.6 bal=LU:.5,LD:.4 eval 1'],
+ ['kerner','w','ケルナー','ケルナー','日本','北海道','ドイツ・ファルツ','',.4,'hue .3 tint=green:.5,silver:.3 depth .9 nose 1.8 fruit 1.2 flower 1 terpene .6 herb .4 mineral .6 char=p1:.8 sweet .6 attack 1.5 acid 3.8 bitter 1.4 alc 1.8 finish 1.4 bal=LU:.5,LD:.3 eval .8'],
+ ['it-ch','w','イタリアのシャルドネ（北部）','シャルドネ','イタリア','フリウリ','アルト・アディジェ、フリウリ・ヴェネツィア・ジュリア','',.6,'hue .6 tint=green:.3,none:.4,gold:.2 depth 1.2 visc 1.4 nose 1.8 fruit 1.4 flower .9 terpene .2 herb .3 mineral .8 oak .3 dairy .4 honey .3 char=p1:.6,neutral:.3 sweet 1 attack 1.8 acid 3 bitter 1.6 salty .5 alc 2.6 finish 1.8 bal=RU:.4,LD:.3,RD:.2 eval 2'],
+ ['macon','w','マコン（樽の控えめなブルゴーニュ）','シャルドネ','フランス','マコン・ヴィラージュ','ブルゴーニュ、プイィ・フュイッセ','',.9,'hue .7 tint=green:.3,none:.4,gold:.2 depth 1.3 visc 1.4 nose 1.8 fruit 1.5 flower .7 mineral 1 oak .3 dairy .5 honey .3 char=p1:.6,neutral:.2,p2:.2 sweet 1 attack 1.8 acid 3.4 bitter 1.2 alc 2.6 finish 1.8 bal=RU:.4,LD:.3,LU:.3 eval 2'],
+ ['oc-ch','w','南フランスのシャルドネ','シャルドネ','フランス','ペイ・ドック','ラングドック','',.5,'hue 1 tint=gold:.4,none:.4 depth 1.6 visc 1.7 nose 1.8 fruit 2 flower .5 mineral .3 oak .6 dairy .6 char=ripe:.5,p1:.4 sweet 1.6 attack 2.2 acid 2.4 bitter 1.2 alc 2.9 finish 1.4 bal=RD:.5,RU:.4 eval 1.6'],
+ ['nz-ch','w','ニュージーランドのシャルドネ','シャルドネ','ニュージーランド','ホークス・ベイ','マールボロ、ギズボーン','',.5,'hue .9 depth 1.6 visc 1.6 nose 2.1 fruit 1.9 mineral .7 reduct .8 oak 1.1 dairy .8 char=p1:.4,oak:.4 sweet 1.2 attack 2.3 acid 3.8 alc 2.9 finish 2.1 bal=RU:.5,LU:.4 eval 2.6'],
+ ['za-ch','w','南アフリカのシャルドネ','シャルドネ','南アフリカ','ウォーカー・ベイ','ヘメル・アン・アルド、エルギン','',.5,'hue .9 depth 1.6 nose 2 fruit 1.7 mineral 1 reduct .8 oak 1.2 dairy .7 char=oak:.4,p1:.4 sweet 1.1 attack 2.2 acid 3.7 alc 2.8 finish 2.2 bal=LU:.4,RU:.5 eval 2.8'],
+ ['za-sb','w','南アフリカのソーヴィニヨン・ブラン','ソーヴィニヨン・ブラン','南アフリカ','エルギン','コンスタンシア、ステレンボッシュ','',.6,'hue .3 tint=green:.5,silver:.3 depth 1 nose 2.4 fruit 1.8 herb 1.6 mineral .9 char=p1:.9 sweet .7 attack 2.1 acid 4 alc 2.7 bal=RU:.5,LU:.4 eval 1'],
+ ['touraine','w','トゥーレーヌのソーヴィニヨン・ブラン','ソーヴィニヨン・ブラン','フランス','トゥーレーヌ','ロワール','',.6,'hue .2 tint=green:.6,silver:.3 depth .9 nose 2 fruit 1.2 herb 1.6 mineral 1.2 reduct .5 char=p1:.9 sweet .4 attack 1.6 acid 4.2 bitter 1 alc 2.2 finish 1.5 bal=LU:.6,RU:.3 eval .7'],
+ ['vermentino','w','ヴェルメンティーノ','ヴェルメンティーノ','イタリア','ヴェルメンティーノ・ディ・サルデーニャ','トスカーナ、リグーリア','',.5,'hue .5 depth 1.1 nose 1.8 fruit 1.4 flower .8 herb 1.1 mineral 1.1 salty 1.6 char=p1:.7 sweet .7 attack 1.8 acid 3 bitter 1.8 alc 2.6 finish 1.6 bal=LD:.4,LU:.3,RU:.3 eval 1.2'],
+ ['fiano','w','フィアーノ','フィアーノ','イタリア','フィアーノ・ディ・アヴェッリーノ','カンパーニア','',.4,'hue .8 depth 1.4 visc 1.5 nose 1.8 fruit 1.6 flower .9 mineral 1.2 honey .6 char=p1:.6,ripe:.2 sweet 1 attack 2.2 acid 3.6 bitter 1.6 alc 2.7 finish 2.2 bal=RU:.4,LU:.4 eval 2.2'],
+ ['picpoul','w','ピクプール・ド・ピネ','ピクプール','フランス','ピクプール・ド・ピネ','ラングドック','',.4,'hue .2 tint=green:.5,silver:.4 depth .7 nose 1.3 fruit .8 flower .4 herb .4 mineral 1.2 salty 1.6 char=neutral:.5,p1:.4 sweet .3 attack 1.6 acid 4.6 bitter 1 alc 2.2 finish 1.2 bal=LU:.7 eval .5'],
+ ['muscat','w','アルザスのミュスカ（辛口）','ミュスカ','フランス','アルザス','','',.4,'hue .5 depth 1.1 nose 2.6 fruit 1.6 flower 1.6 terpene 2 herb .3 char=p1:.9 sweet .8 attack 1.8 acid 3 bitter 1.4 alc 2.6 finish 1.6 bal=LU:.4,RU:.4 eval 1.4'],
+ ['pblanc','w','ピノ・ブラン','ピノ・ブラン','フランス','アルザス','アルト・アディジェ（ピノ・ビアンコ）','',.4,'hue .6 depth 1.2 visc 1.4 nose 1.4 fruit 1.4 flower .7 mineral .7 honey .3 yeast .3 char=neutral:.5,p1:.4 sweet 1 attack 1.6 acid 2.8 bitter 1.2 alc 2.4 finish 1.5 bal=LD:.5,RD:.3 eval 1.2'],
+ ['godello','w','ゴデーリョ','ゴデーリョ','スペイン','バルデオラス','ビエルソ','',.4,'hue .7 depth 1.3 visc 1.5 nose 1.7 fruit 1.4 flower .6 mineral 1.3 herb .5 oak .5 char=p1:.6 sweet .9 attack 2.1 acid 3.6 bitter 1.6 alc 2.7 finish 2 bal=RU:.4,LU:.4 eval 2'],
+ ['bourg-pn','r','ブルゴーニュのピノ・ノワール','ピノ・ノワール','フランス','ブルゴーニュ','コート・ド・ニュイの村名','',1.2,'hue=rasp:.4,ruby:.5 tint=rim:.5,none:.3 depth 1.3 visc .9 young .6 nose 1.8 fcolor .4 fstate 1 flower .9 green .1 mint .1 cedar .2 pepper .1 sweetspice .5 earth 1.4 animal .5 oak .8 coconut .05 candy .1 char=p1:.4,oak:.3,p2:.2 sweet .5 attack 1.6 acid 4.5 tannin 1.4 grip .4 alc 2.1 finish 2.2 bal=LU:.4,D:.5 eval 1.2'],
+ ['oregon-pn','r','オレゴンのピノ・ノワール','ピノ・ノワール','アメリカ','ウィラメット・ヴァレー','オレゴン','クラウドライン（第1回・第2回）',1,'hue=ruby:.6,rasp:.3 tint=rim:.4,none:.4 depth 1.6 visc 1.1 nose 2 fcolor .6 fstate 1.4 flower .7 sweetspice .7 earth 1 animal .3 oak 1 char=p1:.5,oak:.3 sweet .9 attack 1.9 acid 3.8 tannin 1.6 grip .4 alc 2.6 finish 2 bal=D:.6,LU:.2,RU:.2 eval 1.4'],
+ ['otago-pn','r','セントラル・オタゴのピノ・ノワール','ピノ・ノワール','ニュージーランド','セントラル・オタゴ','オタゴ','',.9,'hue=ruby:.5,dcherry:.3 tint=purple:.4,none:.3 depth 2.2 visc 1.5 nose 2.4 fcolor 1.2 fstate 1.6 flower .6 mint .3 cedar .3 sweetspice .7 earth .7 oak 1 char=p1:.6,oak:.3 sweet 1.1 attack 2.3 acid 3.6 tannin 2 grip .4 alc 3.1 finish 2.2 bal=RU:.5,D:.4 eval 2.4'],
+ ['nz-pn','r','ニュージーランドのピノ・ノワール（軽め）','ピノ・ノワール','ニュージーランド','マールボロ','ワイタキ・ヴァレー、マーティンボロー','オスラー（第5回予選・ワイタキ）',.7,'hue=rasp:.4,ruby:.5 tint=rim:.4,none:.4 depth 1.4 visc 1 nose 1.9 fcolor .5 fstate 1.1 flower .7 sweetspice .4 earth .8 oak .7 char=p1:.6 sweet .7 attack 1.7 acid 4.2 tannin 1.4 grip .4 alc 2.5 finish 1.9 bal=D:.5,LU:.4 eval 1.2'],
+ ['ca-pn','r','カリフォルニアのピノ・ノワール','ピノ・ノワール','アメリカ','ソノマ・コースト','ロシアン・リヴァー・ヴァレー','',.6,'hue=ruby:.6,dcherry:.2 depth 2 visc 1.8 nose 2.4 fcolor 1.1 fstate 2 sweetspice 1 earth .4 oak 1.4 coconut .3 char=oak:.4,p1:.4 sweet 1.8 attack 2.4 acid 3 tannin 1.8 grip .4 alc 3.4 finish 2.2 bal=RU:.5,D:.4 eval 2.4'],
+ ['cl-pn','r','チリのピノ・ノワール','ピノ・ノワール','チリ','カサブランカ・ヴァレー','サン・アントニオ・ヴァレー','',.4,'hue=ruby:.6 depth 1.8 nose 2 fcolor .8 fstate 1.6 green .5 earth .6 oak .9 sweet 1.3 attack 2 acid 3.4 tannin 1.6 alc 2.9 bal=D:.4,RU:.4 eval 1.4'],
+ ['beaujolais','r','ボージョレ','ガメイ','フランス','ボージョレ','ボージョレ・ヴィラージュ、クリュ名（モルゴンなど）','シャトー・デ・ジャック（第2回）',1,'hue=rasp:.6,ruby:.3 tint=purple:.8 depth 1.6 visc .7 young .1 nose 2 fcolor .2 fstate 1.2 flower .8 pepper .3 earth .3 candy 1.5 oak .1 coconut .02 char=p1:.5,p2:.4 sweet .9 attack 1.4 acid 3.6 tannin .8 grip .3 alc 2 finish 1.2 bal=D:.6,LU:.2,RU:.2 eval .3'],
+ ['mba','r','マスカット・ベーリーA','マスカット・ベーリーA','日本','山梨','','',.9,'hue=rasp:.6,ruby:.3 tint=purple:.6,rim:.3 depth 1.4 visc .7 nose 2.2 fcolor .2 fstate 1.6 flower .4 candy 1.9 earth .2 oak .5 char=p1:.7 sweet 1.2 attack 1.2 acid 2.8 tannin .7 grip .3 alc 1.6 finish 1.2 bal=D:.7 eval .3'],
+ ['barolo','r','バローロ','ネッビオーロ','イタリア','バローロ','バルバレスコ、ランゲ・ネッビオーロ','',.7,'hue=garnet:.6,ruby:.3 tint=orange:.7 depth 1.8 visc 1.6 young 1.6 nose 2.2 fcolor .6 fstate 1.8 flower 1.6 tomato .6 earth 1 animal .8 sweetspice .9 oak .7 char=p1:.3,oak:.3,neutral:.2 sweet .4 attack 2.6 acid 5.4 tannin 5.6 grip 1.4 alc 3.2 finish 2.8 bal=LU:.8 eval 2.4'],
+ ['chianti','r','キアンティ・クラッシコ','サンジョヴェーゼ','イタリア','キアンティ・クラッシコ','キアンティ','',1.1,'hue=ruby:.5,garnet:.4 tint=orange:.4,rim:.3 depth 2.4 visc 1.4 young .9 nose 2 fcolor .8 fstate 1.3 flower .8 tomato 1.6 cedar .3 earth .9 animal .5 oak .7 sweetspice .5 char=p1:.5,oak:.2,neutral:.2 sweet .5 attack 2 acid 5.4 tannin 3.8 grip 1.3 alc 2.8 finish 2.1 bal=LU:.8 eval 2'],
+ ['nobile','r','ヴィーノ・ノービレ／ブルネッロ（南トスカーナのサンジョヴェーゼ）','サンジョヴェーゼ','イタリア','ヴィーノ・ノービレ・ディ・モンテプルチアーノ','ブルネッロ・ディ・モンタルチーノ、ロッソ・ディ・モンタルチーノ','第1回に出題',.5,'hue=ruby:.4,garnet:.5 tint=orange:.4 depth 2.7 visc 1.7 young 1 nose 2.2 fcolor 1 fstate 1.7 tomato 1.2 earth .8 animal .5 oak 1.2 sweetspice .7 sweet .8 attack 2.4 acid 4.8 tannin 4.4 grip 1.1 alc 3.2 finish 2.3 bal=LU:.7,RU:.3 eval 2.6'],
+ ['barbera','r','バルベーラ・ダルバ','バルベーラ','イタリア','バルベーラ・ダルバ','バルベーラ・ダスティ','',.4,'hue=ruby:.6,dcherry:.3 tint=purple:.6 depth 3.4 nose 2 fcolor 1.5 fstate 1.6 earth .4 oak .6 sweet 1 attack 2.2 acid 5.6 tannin 1.8 grip .4 alc 2.8 bal=LU:.5,RU:.4 eval 1.2'],
+ ['medoc','r','ボルドー（左岸・カベルネ主体）','カベルネ・ソーヴィニヨン主体','フランス','ボルドー','オー・メドック、メドック','',1,'hue=garnet:.5,ruby:.3,dcherry:.2 tint=black:.3,none:.4 depth 3.6 visc 1.8 young 1 nose 1.8 fcolor 2.2 fstate 1.3 green 1.1 cedar 1.4 mint .4 sweetspice .7 earth .6 animal .5 oak 1.3 char=oak:.4,p1:.3,neutral:.2 sweet .6 attack 2.4 acid 4.2 tannin 4.4 grip .8 alc 2.8 finish 2.4 bal=LU:.9 eval 2.2'],
+ ['rightbank','r','ボルドー（右岸・メルロ主体）','メルロ主体','フランス','ボルドー','サンテミリオン、ボルドー・シュペリュール','シャトー・プピーユ（第3回予選）',1,'hue=garnet:.5,ruby:.3 depth 3.4 visc 2 young .8 nose 1.9 fcolor 1.8 fstate 1.8 green .5 cedar .8 earth .8 sweetspice .6 animal .4 oak 1.3 char=oak:.4,p1:.4 sweet 1.2 attack 2.4 acid 3.6 tannin 3.4 grip .5 alc 3 finish 2.2 bal=D:.5,LU:.4 eval 2.6'],
+ ['napa','r','ナパ・ヴァレーのカベルネ・ソーヴィニヨン','カベルネ・ソーヴィニヨン','アメリカ','ナパ・ヴァレー','カリフォルニア','',.7,'hue=dcherry:.6,garnet:.3 tint=black:.6 depth 4.5 visc 2.6 nose 2.6 fcolor 2.4 fstate 2.2 green .4 mint .7 cedar .6 sweetspice .8 oak 1.8 coconut .6 char=oak:.6,p1:.3 sweet 2.2 attack 3.2 acid 3 tannin 4.6 grip .4 alc 3.8 finish 2.6 bal=RU:.9 eval 3.4'],
+ ['cl-cs','r','チリのカベルネ・ソーヴィニヨン','カベルネ・ソーヴィニヨン','チリ','セントラル・ヴァレー','マイポ・ヴァレー、コルチャグア・ヴァレー','',.9,'hue=dcherry:.5,ruby:.3 tint=purple:.4,black:.3 depth 4.2 visc 2.2 nose 2.6 fcolor 2.3 fstate 2 green 1.3 mint 1.2 cedar .4 pepper .3 oak 1.2 coconut .3 char=p1:.5,oak:.4 sweet 1.8 attack 2.8 acid 3.4 tannin 3.8 grip .6 alc 3.4 finish 2 bal=RU:.8 eval 2.4'],
+ ['carmenere','r','カルメネール','カルメネール','チリ','セントラル・ヴァレー','コルチャグア・ヴァレー、エルキ・ヴァレー','ファレルニア（第1回・エルキ）',.8,'hue=dcherry:.5,ruby:.4 tint=purple:.5 depth 4.2 visc 2.2 nose 2.6 fcolor 2.1 fstate 2 green 1.8 mint .8 pepper .7 sweetspice .6 earth .3 oak 1 char=p1:.6,oak:.3 sweet 1.8 attack 2.6 acid 3 tannin 2.8 grip .4 alc 3.4 finish 2 bal=RU:.7,D:.3 eval 2.2'],
+ ['mr-cs','r','マーガレット・リヴァーのカベルネ・ソーヴィニヨン','カベルネ・ソーヴィニヨン','オーストラリア','マーガレット・リヴァー','クーナワラ','',.6,'hue=dcherry:.4,garnet:.4 tint=black:.4 depth 4 visc 2.1 nose 2.4 fcolor 2.2 fstate 1.8 green .7 mint 1.8 cedar .8 oak 1.4 coconut .5 char=p1:.4,oak:.4 sweet 1.4 attack 2.8 acid 3.8 tannin 4 grip .5 alc 3.3 finish 2.4 bal=LU:.5,RU:.5 eval 3'],
+ ['chinon','r','シノン','カベルネ・フラン','フランス','シノン','ソーミュール・シャンピニー、ブルグイユ','',.8,'hue=ruby:.6,rasp:.3 tint=purple:.5 depth 2.6 visc 1.2 nose 1.8 fcolor 1 fstate 1 flower .7 green 1.8 cedar .6 earth .7 animal .5 oak .4 char=p1:.7 sweet .4 attack 1.6 acid 4.6 tannin 2.8 grip .7 alc 2.2 finish 1.8 bal=LU:.8 eval 1.4'],
+ ['niagara-cf','r','ナイアガラのカベルネ・フラン','カベルネ・フラン','カナダ','ナイアガラ・ペニンシュラ','','ヴァインランド（第1回）',.4,'hue=ruby:.6 tint=purple:.4 depth 2.4 nose 2 fcolor 1 fstate 1.4 green 1.8 cedar .4 oak .7 char=p1:.7 sweet .8 attack 1.8 acid 4.2 tannin 2.4 alc 2.4 bal=LU:.6,D:.3 eval 1.4'],
+ ['n-rhone','r','北ローヌのシラー','シラー','フランス','クローズ・エルミタージュ','サン・ジョセフ','',1,'hue=ruby:.4,dcherry:.4 tint=purple:.6 depth 3.8 visc 1.6 nose 2.2 fcolor 2 fstate 1.3 flower 1.4 pepper 1.8 olive 1.6 animal 1 earth .4 oak .7 coconut .05 char=p1:.6,oak:.2 sweet .6 attack 2.4 acid 4.4 tannin 3.4 grip .7 alc 2.8 finish 2.2 bal=LU:.8 eval 2.2'],
+ ['barossa','r','バロッサ・ヴァレーのシラーズ','シラーズ','オーストラリア','バロッサ・ヴァレー','南オーストラリア','',1,'hue=dcherry:.7 tint=black:.7,purple:.3 depth 4.8 visc 2.8 nose 2.8 fcolor 2.3 fstate 2.6 pepper .8 olive .5 mint 1.2 sweetspice 1.2 oak 1.8 coconut 1.1 char=oak:.5,p1:.4 sweet 2.6 attack 3.4 acid 2.6 tannin 3.8 grip .4 alc 3.9 finish 2.6 bal=RU:1 eval 3.6'],
+ ['sa-shiraz','r','南オーストラリアのシラーズ（手頃な価格帯）','シラーズ','オーストラリア','南オーストラリア','マクラーレン・ヴェイル','ペンフォールズ マックス（第3回予選）、第4回予選',1,'hue=dcherry:.5,ruby:.4 tint=purple:.5,black:.4 depth 4.4 visc 2.4 nose 2.6 fcolor 2.2 fstate 2.4 pepper .7 olive .3 mint 1 sweetspice 1 oak 1.4 coconut .9 char=p1:.5,oak:.4 sweet 2.2 attack 3 acid 2.8 tannin 3.2 grip .5 alc 3.6 finish 2.2 bal=RU:.9 eval 2.8'],
+ ['swt-syrah','r','スワートランドのシラー','シラー','南アフリカ','スワートランド','','',.5,'hue=ruby:.5,dcherry:.4 tint=purple:.5 depth 3.6 nose 2.2 fcolor 1.8 fstate 1.6 flower .8 pepper 1.3 olive 1 earth .6 oak .6 char=p1:.6 sweet 1 attack 2.4 acid 3.8 tannin 3 grip .7 alc 3.2 bal=LU:.4,RU:.5 eval 2.4'],
+ ['cdr','r','コート・デュ・ローヌ','グルナッシュ主体','フランス','コート・デュ・ローヌ','コート・デュ・ローヌ・ヴィラージュ','',1,'hue=ruby:.6,garnet:.3 tint=orange:.3,rim:.3,none:.3 depth 2.4 visc 2.2 nose 2.2 fcolor .9 fstate 2.2 flower .3 pepper .8 sweetspice .9 olive .5 tomato .6 earth .6 oak .4 char=p1:.5,neutral:.2,oak:.2 sweet 1.8 attack 2.6 acid 2.8 tannin 2.6 grip 1.4 alc 3.6 finish 2 bal=RU:.5,D:.5 eval 1.6'],
+ ['priorat','r','プリオラート','ガルナッチャ主体','スペイン','プリオラート','モンサン','スカラ・デイ（第1回）',.6,'hue=ruby:.4,dcherry:.4 depth 3.8 visc 2.6 nose 2.4 fcolor 1.6 fstate 2.6 pepper .5 sweetspice .8 earth .5 tomato .4 oak 1.4 coconut .3 char=oak:.4,p1:.4 sweet 2 attack 3 acid 3.2 tannin 3.6 grip 1 alc 3.9 finish 2.4 bal=RU:.8 eval 3.2'],
+ ['swt-gren','r','スワートランドのグルナッシュ（淡いスタイル）','グルナッシュ','南アフリカ','スワートランド','','ケージ・ワイン（第5回予選）',.7,'hue=rasp:.5,ruby:.5 tint=rim:.6 depth 1.2 visc 1 nose 2 fcolor .4 fstate 1.2 flower .6 pepper .7 sweetspice .6 tomato .8 earth .7 candy .2 oak .2 coconut .02 char=p1:.6,p2:.2 sweet .7 attack 1.8 acid 3.8 tannin 1.8 grip 1.2 alc 2.8 finish 1.8 bal=D:.5,LU:.4 eval 1.4'],
+ ['roussillon','r','ルーション・ラングドックのグルナッシュ','グルナッシュ主体','フランス','ルーション','ラングドック、コート・デュ・ルーション','ラファージュ（第2回）',.5,'hue=ruby:.5,dcherry:.3 depth 3 visc 2.2 nose 2.2 fcolor 1.3 fstate 2.4 pepper .6 sweetspice .8 olive .4 tomato .4 oak .5 sweet 2 attack 2.8 acid 2.8 tannin 2.8 grip 1.2 alc 3.6 bal=RU:.7 eval 1.6'],
+ ['rioja-crianza','r','リオハ・クリアンサ（伝統的スタイル）','テンプラニーリョ','スペイン','リオハ','リオハ・アルタ、リオハ・アラベサ','',.8,'hue=ruby:.5,garnet:.4 tint=orange:.4,rim:.3 depth 2.5 visc 1.5 young 1.1 nose 2 fcolor 1.1 fstate 1.6 tomato .5 sweetspice .8 earth .6 animal .4 oak 1.4 coconut 1.6 char=oak:.5,p1:.3,p2:.2 sweet 1.1 attack 2.1 acid 3.8 tannin 2.6 grip .6 alc 2.7 finish 1.8 bal=D:.5,LU:.4 eval 1.6'],
+ ['rioja-reserva','r','リオハ・レセルバ（伝統的スタイル）','テンプラニーリョ','スペイン','リオハ','リオハ・アルタ（グラン・レセルバも同系統）','',.7,'hue=garnet:.7,brick:.2 tint=orange:.8 depth 2.6 visc 1.6 young 2 nose 2.1 fcolor 1.2 fstate 2.1 tomato .8 sweetspice 1.2 earth 1.1 animal 1 oak 1.6 coconut 1.8 char=oak:.5,p2:.2,neutral:.2 sweet 1.1 attack 2.2 acid 3.8 tannin 2.9 grip .4 alc 2.8 finish 2.4 bal=D:.6,LU:.3 eval 2.2'],
+ ['rioja-modern','r','リオハ（モダンスタイル）','テンプラニーリョ','スペイン','リオハ','リオハ・アラベサ','',.7,'hue=ruby:.4,dcherry:.5 tint=purple:.5,black:.3 depth 4 visc 2.3 young .5 nose 2.4 fcolor 1.9 fstate 2 flower .5 sweetspice .7 earth .3 animal .2 oak 1.7 coconut .6 char=oak:.5,p1:.4 sweet 1.6 attack 2.8 acid 3.6 tannin 3.8 grip .5 alc 3.4 finish 2.4 bal=RU:.7,LU:.3 eval 3'],
+ ['ribera','r','リベラ・デル・ドゥエロ','テンプラニーリョ','スペイン','リベラ・デル・ドゥエロ','','セレステ（第3回予選）',.9,'hue=dcherry:.4,garnet:.4 tint=black:.4,purple:.3 depth 4.2 visc 2.4 young .8 nose 2.4 fcolor 2 fstate 2 sweetspice .8 animal .4 oak 1.8 coconut 1 char=oak:.6,p1:.3 sweet 1.6 attack 3 acid 3.6 tannin 4.4 grip .7 alc 3.6 finish 2.6 bal=RU:.7,LU:.3 eval 3.2'],
+ ['uco','r','ウコ・ヴァレーのマルベック','マルベック','アルゼンチン','ウコ・ヴァレー','メンドーサ','ズッカルディ（第5回予選）、アルトス・ラス・オルミガス（第2回）',1.1,'hue=dcherry:.5,ruby:.3 tint=purple:1 depth 4.8 visc 2.6 young .1 nose 2.6 fcolor 2 fstate 2 flower 1.6 green .1 sweetspice .5 oak 1.2 coconut .3 char=p1:.6,oak:.3 sweet 1.8 attack 3 acid 4 tannin 3.4 grip .5 alc 3.4 finish 2.2 bal=RU:.8 eval 2.8'],
+ ['mendoza','r','メンドーサのマルベック（丸いスタイル）','マルベック','アルゼンチン','メンドーサ','ルハン・デ・クージョ','',.8,'hue=dcherry:.5,ruby:.3 tint=purple:.8 depth 4.6 visc 2.6 nose 2.4 fcolor 2 fstate 2.4 flower 1.2 sweetspice .6 oak 1.3 coconut .4 char=p1:.5,oak:.4 sweet 2.2 attack 2.8 acid 2.8 tannin 3 grip .4 alc 3.6 finish 2 bal=RU:.7,D:.3 eval 2.4'],
+ ['cahors','r','カオール','マルベック（コー）','フランス','カオール','','',.4,'hue=dcherry:.4,garnet:.4 tint=black:.8 depth 4.6 nose 1.8 fcolor 2.2 fstate 1.4 flower .6 earth .8 animal .7 oak 1 char=p1:.4,neutral:.3 sweet .7 attack 2.6 acid 4.4 tannin 5 grip 1.2 alc 2.8 bal=LU:.9 eval 2.4'],
+ ['jp-merlot','r','日本のメルロ（長野・山梨）','メルロ','日本','長野','桔梗ヶ原、山梨','ドメーヌ・コーセイ（第2回）',.8,'hue=ruby:.5,garnet:.4 depth 2.6 visc 1.4 nose 1.6 fcolor 1.4 fstate 1.4 green .6 cedar .6 earth .7 oak 1 char=p1:.4,oak:.4 sweet .9 attack 1.8 acid 3.4 tannin 2.6 grip .4 alc 2.4 finish 1.8 bal=D:.6,LU:.3 eval 1.6'],
+ ['zin','r','ジンファンデル','ジンファンデル','アメリカ','ソノマ','ロダイ','',.5,'hue=dcherry:.4,ruby:.4 depth 3.8 visc 2.6 nose 2.6 fcolor 1.6 fstate 2.8 pepper .6 sweetspice 1.2 oak 1.4 coconut .8 char=p1:.5,oak:.4 sweet 2.8 attack 3 acid 2.6 tannin 2.8 grip .5 alc 4 finish 2.2 bal=RU:.9 eval 2.6'],
+ ['pinotage','r','ピノタージュ','ピノタージュ','南アフリカ','ステレンボッシュ','','',.4,'hue=ruby:.4,dcherry:.4 tint=purple:.5 depth 3.6 nose 2.2 fcolor 1.6 fstate 2.2 animal .8 earth .5 oak 1.4 coconut .6 sweetspice .6 sweet 1.6 attack 2.6 acid 3.4 tannin 3 grip .8 alc 3.2 bal=RU:.6 eval 2'],
+ ['blaufr','r','オーストリアの赤（ツヴァイゲルト／ブラウフレンキッシュ）','ツヴァイゲルト、ブラウフレンキッシュ','オーストリア','ブルゲンラント','カルヌントゥム','',.4,'hue=ruby:.6,rasp:.3 tint=purple:.7 depth 2.6 nose 2 fcolor .9 fstate 1.1 pepper 1 sweetspice .5 earth .4 oak .5 char=p1:.7 sweet .7 attack 2 acid 4.8 tannin 2.6 grip .6 alc 2.4 finish 1.8 bal=LU:.7 eval 1.4'],
+ ['douro','r','ドウロの赤','トゥーリガ・ナシオナル主体','ポルトガル','ドウロ','','',.4,'hue=dcherry:.6 tint=purple:.5,black:.4 depth 4.6 visc 2.2 nose 2.4 fcolor 2.1 fstate 2.2 flower 1.4 sweetspice .6 oak 1.2 char=p1:.5,oak:.4 sweet 1.4 attack 2.8 acid 3.6 tannin 4.4 grip .8 alc 3.4 finish 2.4 bal=RU:.6,LU:.4 eval 2.8'],
+ ['cinsault','r','サンソー（軽やかなスタイル）','サンソー','南アフリカ','スワートランド','チリ・イタタ・ヴァレー','',.4,'hue=rasp:.5,ruby:.5 tint=rim:.5 depth 1.4 nose 2 fcolor .4 fstate 1.2 flower .7 earth .5 tomato .4 pepper .4 oak .2 char=p1:.7 sweet .8 attack 1.6 acid 3.6 tannin 1.4 grip .7 alc 2.4 finish 1.6 bal=D:.6 eval 1'],
+ ['valpol','r','ヴァルポリチェッラ','コルヴィーナ主体','イタリア','ヴァルポリチェッラ','ヴァルポリチェッラ・クラッシコ','',.6,'hue=ruby:.6,rasp:.3 depth 2 visc 1.2 nose 1.9 fcolor .7 fstate 1.4 flower .5 sweetspice .5 earth .4 tomato .3 oak .5 char=p1:.6 sweet 1 attack 1.8 acid 4 tannin 2 grip .5 alc 2.6 finish 1.6 bal=D:.5,LU:.3 eval 1.2'],
+ ['ripasso','r','ヴァルポリチェッラ・リパッソ','コルヴィーナ主体','イタリア','ヴァルポリチェッラ・リパッソ','ヴァルポリチェッラ','',.5,'hue=ruby:.4,garnet:.4 tint=orange:.3 depth 3 visc 2 nose 2.2 fcolor 1.1 fstate 2.6 sweetspice .9 earth .4 oak 1 char=p1:.4,oak:.3,p2:.2 sweet 2 attack 2.4 acid 3.8 tannin 2.8 grip .6 alc 3.3 finish 2 bal=RU:.5,D:.4 eval 2.6'],
+ ['etna','r','エトナ・ロッソ','ネレッロ・マスカレーゼ','イタリア','エトナ','シチリア','',.5,'hue=rasp:.3,ruby:.4,garnet:.3 tint=orange:.4,rim:.4 depth 1.4 visc 1.1 nose 2 fcolor .6 fstate 1.2 flower .8 earth .8 tomato .6 pepper .4 sweetspice .5 olive .3 oak .5 char=p1:.5,neutral:.2 sweet .5 attack 2 acid 4.8 tannin 3.2 grip 1.1 alc 2.9 finish 2.2 bal=LU:.7 eval 2'],
+ ['nerodavola','r','ネロ・ダーヴォラ','ネロ・ダーヴォラ','イタリア','シチリア','','',.5,'hue=ruby:.5,dcherry:.4 tint=purple:.5 depth 3.8 visc 2 nose 2.2 fcolor 1.6 fstate 2.2 flower .5 sweetspice .6 earth .3 oak .7 char=p1:.6 sweet 1.8 attack 2.6 acid 3.6 tannin 2.8 grip .6 alc 3.4 finish 1.8 bal=RU:.7 eval 2'],
+ ['primitivo','r','プリミティーヴォ','プリミティーヴォ','イタリア','プーリア','プリミティーヴォ・ディ・マンドゥーリア','',.5,'hue=dcherry:.5,ruby:.3 depth 4.2 visc 2.6 nose 2.4 fcolor 1.6 fstate 2.8 sweetspice 1 oak 1 char=p1:.5,oak:.3 sweet 2.8 attack 2.8 acid 2.8 tannin 2.6 grip .5 alc 3.9 finish 2 bal=RU:.9 eval 2.4'],
+ ['aglianico','r','アリアニコ','アリアニコ','イタリア','タウラージ','アリアニコ・デル・ヴルトゥレ','',.4,'hue=garnet:.5,ruby:.3 tint=orange:.3 depth 3.8 nose 2 fcolor 1.8 fstate 1.6 earth .9 animal .8 tomato .5 pepper .4 oak .9 char=p1:.4,oak:.3 sweet .7 attack 2.6 acid 5 tannin 5.2 grip 1.3 alc 3.2 finish 2.4 bal=LU:.9 eval 2.6'],
+ ['montepulciano','r','モンテプルチアーノ・ダブルッツォ','モンテプルチアーノ','イタリア','モンテプルチアーノ・ダブルッツォ','','',.5,'hue=ruby:.4,dcherry:.5 tint=purple:.5 depth 4 fcolor 1.8 fstate 2 sweetspice .5 earth .4 oak .5 char=p1:.6 sweet 1.6 attack 2.4 acid 3.2 tannin 3 grip .9 alc 2.9 finish 1.6 bal=RU:.6 eval 1.2'],
+ ['dolcetto','r','ドルチェット','ドルチェット','イタリア','ドルチェット・ダルバ','','',.3,'hue=ruby:.5,dcherry:.3 tint=purple:.7 depth 3.2 fcolor 1.5 fstate 1.4 flower .5 earth .3 oak .3 char=p1:.7 sweet 1 attack 1.8 acid 3 tannin 3.2 grip 1 alc 2.6 finish 1.4 bal=RU:.4,LU:.4 eval 1'],
+ ['madiran','r','マディラン','タナ','フランス','マディラン','ウルグアイ（タナ）','',.4,'hue=dcherry:.6,garnet:.3 tint=black:.7 depth 4.8 nose 1.8 fcolor 2.3 fstate 1.6 earth .5 animal .6 oak 1.2 char=p1:.4,oak:.4 sweet .8 attack 3 acid 4.2 tannin 6 grip 1.4 alc 3.2 finish 2.4 bal=LU:.9 eval 3'],
+ ['spatburg','r','ドイツのシュペートブルグンダー','ピノ・ノワール','ドイツ','バーデン','ファルツ、アール','',.5,'hue=ruby:.5,rasp:.4 tint=rim:.5 depth 1.5 visc 1 nose 1.8 fcolor .5 fstate 1.2 flower .6 earth .9 oak 1.2 sweetspice .6 char=p1:.4,oak:.4 sweet .7 attack 1.6 acid 4.2 tannin 1.6 grip .4 alc 2.4 finish 1.8 bal=D:.5,LU:.4 eval 1.4'],
+ ['hokkaido-pn','r','北海道のピノ・ノワール','ピノ・ノワール','日本','北海道','','',.5,'hue=rasp:.6,ruby:.3 tint=rim:.5 depth .9 visc .7 nose 1.6 fcolor .3 fstate 1 flower .5 earth .8 tomato .4 oak .4 char=p1:.6,neutral:.2 sweet .4 attack 1.2 acid 4.8 tannin 1.1 grip .4 alc 1.7 finish 1.6 bal=LU:.5,D:.4 eval 1'],
+ ['yarra-pn','r','オーストラリアのピノ・ノワール','ピノ・ノワール','オーストラリア','ヤラ・ヴァレー','モーニントン・ペニンシュラ、タスマニア','',.5,'hue=ruby:.5,rasp:.4 depth 1.6 nose 2 fcolor .6 fstate 1.4 flower .6 sweetspice .6 earth .6 mint .3 oak .9 char=p1:.5,oak:.3 sweet .8 attack 1.8 acid 3.9 tannin 1.6 grip .4 alc 2.6 finish 2 bal=D:.5,LU:.3 eval 1.6'],
+ ['mencia','r','メンシア','メンシア','スペイン','ビエルソ','リベイラ・サクラ','',.5,'hue=ruby:.5,rasp:.3 tint=purple:.6 depth 2.6 visc 1.2 nose 2.2 fcolor 1.1 fstate 1.3 flower 1.2 pepper .5 earth .5 oak .5 char=p1:.7 sweet .7 attack 2 acid 4 tannin 2.4 grip .6 alc 2.7 finish 1.8 bal=LU:.6,D:.3 eval 1.6'],
+ ['monastrell','r','モナストレル','モナストレル','スペイン','フミーリャ','イエクラ、アリカンテ','',.5,'hue=dcherry:.6,ruby:.3 tint=black:.5 depth 4.4 visc 2.6 nose 2.4 fcolor 2 fstate 2.6 animal .6 sweetspice .7 earth .5 oak 1.1 char=p1:.5,oak:.4 sweet 2.2 attack 3 acid 2.8 tannin 3.4 grip .9 alc 3.8 finish 2 bal=RU:.9 eval 2.6'],
+ ['wa-cs','r','ワシントン州のカベルネ・ソーヴィニヨン／メルロ','カベルネ・ソーヴィニヨン、メルロ','アメリカ','コロンビア・ヴァレー','ワシントン州','',.4,'hue=dcherry:.5,garnet:.3 depth 4 visc 2.2 nose 2.2 fcolor 2.1 fstate 2 green .6 mint .5 cedar .6 oak 1.5 coconut .4 char=oak:.5,p1:.4 sweet 1.6 attack 2.8 acid 3.8 tannin 3.8 grip .5 alc 3.4 finish 2.2 bal=RU:.6,LU:.4 eval 2.8'],
+ ['cl-syrah','r','チリのシラー','シラー','チリ','エルキ・ヴァレー','コルチャグア・ヴァレー、カサブランカ・ヴァレー','',.5,'hue=dcherry:.5,ruby:.3 tint=purple:.6 depth 4.3 nose 2.4 fcolor 2.1 fstate 2 pepper 1.1 olive .6 flower .9 mint .4 oak 1.1 char=p1:.6,oak:.3 sweet 1.6 attack 2.6 acid 3.6 tannin 3.2 grip .6 alc 3.4 finish 2 bal=RU:.7 eval 2.6'],
+ ['hb-syrah','r','ホークス・ベイのシラー','シラー','ニュージーランド','ホークス・ベイ','','',.4,'hue=ruby:.5,dcherry:.3 tint=purple:.6 depth 3.4 nose 2.2 fcolor 1.8 fstate 1.4 flower 1.2 pepper 1.8 olive .8 oak .8 char=p1:.7 sweet .8 attack 2.2 acid 4.2 tannin 2.8 grip .6 alc 2.8 finish 2 bal=LU:.7 eval 2.2'],
+ ['stb-cs','r','ステレンボッシュのカベルネ・ソーヴィニヨン','カベルネ・ソーヴィニヨン（ボルドーブレンドを含む）','南アフリカ','ステレンボッシュ','','ボッシュクルーフ（第1回）',.6,'hue=garnet:.4,dcherry:.4 depth 4 nose 2.2 fcolor 2.1 fstate 1.8 green .8 cedar .8 mint .5 earth .5 animal .4 oak 1.4 char=oak:.4,p1:.4 sweet 1.3 attack 2.8 acid 3.8 tannin 4.2 grip .6 alc 3.3 finish 2.4 bal=LU:.6,RU:.4 eval 2.8'],
+ ['au-gsm','r','マクラーレン・ヴェイルのグルナッシュ（GSM）','グルナッシュ主体','オーストラリア','マクラーレン・ヴェイル','バロッサ・ヴァレー','',.5,'hue=ruby:.5,garnet:.3 depth 3 visc 2.4 nose 2.4 fcolor 1.2 fstate 2.5 pepper .6 sweetspice 1 mint .6 oak .8 char=p1:.5,oak:.3 sweet 2.2 attack 2.8 acid 3 tannin 2.6 grip 1 alc 3.8 finish 2 bal=RU:.7,D:.3 eval 2.4'],
+ ['koshu-oak','w','甲州（樽発酵・樽熟成）','甲州','日本','山梨','勝沼','',.6,'hue .5 tint=silver:.3,green:.2,none:.3,gold:.2 depth 1 visc 1 nose 1.4 fruit .8 flower .4 herb .2 mineral .6 oak 1.2 dairy .5 yeast .4 honey .2 char=oak:.5,neutral:.3,p2:.2 sweet .7 attack 1.3 acid 2.6 bitter 2.6 salty .6 alc 1.6 finish 1.6 bal=LD:.5,LU:.3,RU:.2 eval 1.6'],
+ ['jp-sb','w','日本のソーヴィニヨン・ブラン','ソーヴィニヨン・ブラン','日本','長野','山梨、北海道','',.5,'hue .3 tint=green:.6,silver:.3 depth .9 nose 2 fruit 1.2 herb 1.5 mineral .8 reduct .3 char=p1:.9 sweet .5 attack 1.6 acid 3.6 bitter 1.4 salty .4 alc 2 finish 1.5 bal=LU:.6,LD:.3 eval 1'],
+ ['jp-albarino','w','日本のアルバリーニョ','アルバリーニョ','日本','新潟','山梨、島根','',.4,'hue .3 tint=green:.5,silver:.4 depth .8 nose 2 fruit 1.6 flower 1 terpene .3 mineral 1 salty 1.6 char=p1:.8 sweet .5 attack 1.6 acid 3.8 bitter 1.4 alc 2 finish 1.5 bal=LU:.5,LD:.3 eval 1'],
+ ['mba-oak','r','マスカット・ベーリーA（樽熟成）','マスカット・ベーリーA','日本','山梨','山形、新潟、岡山','',.7,'hue=ruby:.6,rasp:.3 tint=purple:.4,rim:.3 depth 1.8 visc 1 nose 2 fcolor .4 fstate 1.7 flower .3 candy 1.3 sweetspice .6 earth .3 oak 1.4 coconut .3 char=oak:.5,p1:.4 sweet 1.2 attack 1.6 acid 2.9 tannin 1.4 grip .3 alc 2 finish 1.5 bal=D:.7 eval 1.2'],
+ ['jp-cs','r','日本のカベルネ・ソーヴィニヨン（ボルドーブレンドを含む）','カベルネ・ソーヴィニヨン主体','日本','山梨','長野','',.5,'hue=ruby:.4,garnet:.4 depth 2.8 visc 1.4 nose 1.7 fcolor 1.8 fstate 1.3 green 1.3 cedar .9 mint .4 earth .6 oak 1.2 char=oak:.4,p1:.4 sweet .8 attack 1.9 acid 3.6 tannin 2.8 grip .6 alc 2.4 finish 1.8 bal=LU:.6,D:.3 eval 1.8'],
+ ['jp-syrah','r','日本のシラー','シラー','日本','長野','山梨','',.4,'hue=ruby:.6,rasp:.2 tint=purple:.5 depth 2.4 visc 1.2 nose 1.8 fcolor 1.4 fstate 1.2 flower .9 pepper 1.8 olive .5 earth .4 oak .8 char=p1:.6,oak:.3 sweet .7 attack 1.8 acid 3.8 tannin 2.2 grip .5 alc 2.4 finish 1.8 bal=LU:.6,D:.3 eval 1.6'],
+ ['yama-sauv','r','ヤマ・ソーヴィニヨン','ヤマ・ソーヴィニヨン','日本','山形','岡山','',.4,'hue=dcherry:.4,ruby:.4 tint=purple:.7 depth 3.6 visc 1.2 nose 1.9 fcolor 1.9 fstate 1.4 green .9 earth .4 animal .3 oak .7 char=p1:.7 sweet .7 attack 2 acid 5 tannin 2.6 grip .8 alc 2.2 finish 1.6 bal=LU:.7 eval 1.2'],
+ ['hk-zweigelt','r','北海道のツヴァイゲルト','ツヴァイゲルト','日本','北海道','余市、空知','',.4,'hue=ruby:.6,rasp:.3 tint=purple:.6,rim:.3 depth 1.8 visc .9 nose 1.8 fcolor .8 fstate 1.1 pepper 1.1 flower .5 earth .4 oak .5 char=p1:.7 sweet .5 attack 1.4 acid 4.6 tannin 1.6 grip .5 alc 1.9 finish 1.5 bal=LU:.6,D:.3 eval 1.1'],
+];
+
+/* ===== 答え合わせ用の産地の階層（広域：アペラシオン,… ; 広域：…） ===== */
+const HIER = {
+ chablis:'ブルゴーニュ:シャブリ,シャブリ・プルミエ・クリュ,プティ・シャブリ',
+ 'bourg-ch':'ブルゴーニュ:ブルゴーニュ・ブラン,ムルソー,ピュリニー・モンラッシェ,シャサーニュ・モンラッシェ,そのほかコート・ド・ボーヌの村名',
+ macon:'ブルゴーニュ:マコン・ヴィラージュ,マコン,プイィ・フュイッセ,サン・ヴェラン,ブルゴーニュ・ブラン',
+ aligote:'ブルゴーニュ:ブルゴーニュ・アリゴテ,ブーズロン',
+ 'ca-ch':'カリフォルニア州:カリフォルニア（広域）,ソノマ・コースト,ロシアン・リヴァー・ヴァレー,ナパ・ヴァレー,カーネロス,セントラル・コースト',
+ 'cl-ch':'アコンカグア地方:カサブランカ・ヴァレー,サン・アントニオ・ヴァレー;コキンボ地方:リマリ・ヴァレー;セントラル・ヴァレー地方:セントラル・ヴァレー（広域）',
+ 'jp-ch':'長野:長野（広域）,塩尻・桔梗ヶ原,千曲川ワインバレー;山梨:山梨（広域）,勝沼,明野・北杜;北海道:北海道（広域）,余市,空知',
+ 'au-ch':'ヴィクトリア州:ヤラ・ヴァレー,モーニントン・ペニンシュラ;西オーストラリア州:マーガレット・リヴァー;南オーストラリア州:アデレード・ヒルズ;タスマニア:タスマニア',
+ 'nz-sb':'マールボロ:マールボロ,アワテレ・ヴァレー',
+ sancerre:'ロワール:サンセール,プイィ・フュメ,ムヌトゥー・サロン,カンシー',
+ touraine:'ロワール:トゥーレーヌ,ヴァル・ド・ロワール（IGP）',
+ 'cl-sb':'アコンカグア地方:レイダ・ヴァレー,カサブランカ・ヴァレー,サン・アントニオ・ヴァレー',
+ 'bdx-bl':'ボルドー:ボルドー・ブラン,ペサック・レオニャン,グラーヴ,アントル・ドゥー・メール',
+ mosel:'モーゼル:モーゼル',
+ rheingau:'ラインガウ:ラインガウ;ファルツ:ファルツ;ナーエ:ナーエ;ラインヘッセン:ラインヘッセン;モーゼル:モーゼル',
+ 'alsace-ri':'アルザス:アルザス,アルザス・グラン・クリュ',
+ clare:'南オーストラリア州:クレア・ヴァレー,イーデン・ヴァレー',
+ gewurz:'アルザス:アルザス,アルザス・グラン・クリュ',
+ viognier:'北ローヌ:コンドリュー,シャトー・グリエ;南ローヌ:コート・デュ・ローヌ;ラングドック・ルーション:ペイ・ドック（IGP）',
+ torrontes:'サルタ:カファジャテ,サルタ（広域）',
+ albarino:'ガリシア:リアス・バイシャス',
+ gruner:'ニーダーエスターライヒ:ヴァッハウ,カンプタール,クレムスタール,ヴァインフィアテル,ニーダーエスターライヒ（広域）',
+ muscadet:'ロワール:ミュスカデ・セーヴル・エ・メーヌ,ミュスカデ',
+ koshu:'山梨:山梨（広域）,勝沼,甲州市・笛吹市など勝沼以外の地区;山梨以外:山形,大阪,そのほかの府県',
+ 'koshu-oak':'山梨:山梨（広域）,勝沼,甲州市・笛吹市など勝沼以外の地区;山梨以外:山形,大阪,そのほかの府県',
+ 'jp-sb':'長野:長野（広域）,安曇野,塩尻・桔梗ヶ原;山梨:山梨（広域）;北海道:北海道（広域）,余市',
+ 'jp-albarino':'新潟:新潟（角田浜・巻）;山梨以外の西日本など:島根,そのほかの府県;山梨:山梨（広域）',
+ vouvray:'ロワール:ヴーヴレ,モンルイ・シュル・ロワール,サヴニエール,アンジュー',
+ 'stb-chenin':'ウェスタン・ケープ:ステレンボッシュ',
+ 'swt-chenin':'ウェスタン・ケープ:スワートランド',
+ hunter:'ニュー・サウス・ウェールズ州:ハンター・ヴァレー',
+ 'pg-alsace':'アルザス:アルザス,アルザス・グラン・クリュ',
+ pgrigio:'フリウリ・ヴェネツィア・ジュリア:フリウリ（DOC各種）;ヴェネト:デッレ・ヴェネツィエ,ヴェネト（IGT）;トレンティーノ・アルト・アディジェ:アルト・アディジェ',
+ soave:'ヴェネト:ソアーヴェ,ソアーヴェ・クラッシコ',
+ gavi:'ピエモンテ:ガヴィ',
+ assyrtiko:'エーゲ海の島々:サントリーニ',
+ verdejo:'カスティーリャ・イ・レオン:ルエダ',
+ mueller:'ラインヘッセン:ラインヘッセン;フランケン:フランケン;バーデン:バーデン',
+ silvaner:'フランケン:フランケン;ラインヘッセン:ラインヘッセン',
+ kerner:'北海道:余市,北海道（広域）,空知',
+ 'it-ch':'フリウリ・ヴェネツィア・ジュリア:フリウリ（DOC各種）;トレンティーノ・アルト・アディジェ:アルト・アディジェ,トレンティーノ',
+ 'oc-ch':'ラングドック・ルーション:ペイ・ドック（IGP）,ラングドック,リムー',
+ 'nz-ch':'ホークス・ベイ:ホークス・ベイ;マールボロ:マールボロ;ギズボーン:ギズボーン',
+ 'za-ch':'ウェスタン・ケープ:ウォーカー・ベイ,ヘメル・アン・アルド,エルギン,ステレンボッシュ',
+ 'za-sb':'ウェスタン・ケープ:エルギン,コンスタンシア,ステレンボッシュ',
+ vermentino:'サルデーニャ:ヴェルメンティーノ・ディ・サルデーニャ,ヴェルメンティーノ・ディ・ガッルーラ;トスカーナ:ボルゲリ,トスカーナ（IGT）;リグーリア:リヴィエラ・リグレ・ディ・ポネンテ',
+ fiano:'カンパーニア:フィアーノ・ディ・アヴェッリーノ,カンパーニア（IGT）',
+ picpoul:'ラングドック・ルーション:ピクプール・ド・ピネ',
+ muscat:'アルザス:アルザス',
+ pblanc:'アルザス:アルザス',
+ godello:'ガリシア:バルデオラス;カスティーリャ・イ・レオン:ビエルソ',
+
+ 'bourg-pn':'ブルゴーニュ:ブルゴーニュ・ルージュ,ジュヴレ・シャンベルタン,ヴォーヌ・ロマネ,ニュイ・サン・ジョルジュ,そのほかコート・ド・ニュイの村名,ヴォルネイ・ポマールなどコート・ド・ボーヌの村名,メルキュレなどコート・シャロネーズ',
+ 'oregon-pn':'オレゴン州:ウィラメット・ヴァレー,ダンディー・ヒルズ,オレゴン（広域）',
+ 'ca-pn':'カリフォルニア州:ソノマ・コースト,ロシアン・リヴァー・ヴァレー,サンタ・バーバラ,カーネロス,セントラル・コースト',
+ 'otago-pn':'セントラル・オタゴ:セントラル・オタゴ',
+ 'nz-pn':'マールボロ:マールボロ;ノース・オタゴ:ワイタキ・ヴァレー;ワイララパ:マーティンボロー',
+ 'cl-pn':'アコンカグア地方:カサブランカ・ヴァレー,サン・アントニオ・ヴァレー,レイダ・ヴァレー',
+ beaujolais:'ボージョレ:ボージョレ,ボージョレ・ヴィラージュ,モルゴン,フルーリー,ムーラン・ナ・ヴァン,そのほかのクリュ',
+ mba:'山梨:山梨（広域）,勝沼,甲州市・笛吹市など勝沼以外の地区;山梨以外:山形,新潟,岡山,そのほかの府県',
+ 'mba-oak':'山梨:山梨（広域）,勝沼,甲州市・笛吹市など勝沼以外の地区;山梨以外:山形,新潟,岡山,そのほかの府県',
+ barolo:'ピエモンテ:バローロ,バルバレスコ,ランゲ・ネッビオーロ,ネッビオーロ・ダルバ',
+ chianti:'トスカーナ:キアンティ・クラッシコ,キアンティ,キアンティ・ルフィナなどキアンティの地区名',
+ nobile:'トスカーナ:ブルネッロ・ディ・モンタルチーノ,ロッソ・ディ・モンタルチーノ,ヴィーノ・ノービレ・ディ・モンテプルチアーノ',
+ barbera:'ピエモンテ:バルベーラ・ダルバ,バルベーラ・ダスティ',
+ medoc:'ボルドー:ボルドー,オー・メドック,メドック,ポイヤック,サン・ジュリアン,マルゴー,サン・テステフ',
+ rightbank:'ボルドー:ボルドー,ボルドー・シュペリュール,サンテミリオン,ポムロール,カスティヨン・コート・ド・ボルドー',
+ napa:'カリフォルニア州:ナパ・ヴァレー,ソノマ,パソ・ロブレス,カリフォルニア（広域）',
+ 'cl-cs':'セントラル・ヴァレー地方:マイポ・ヴァレー,コルチャグア・ヴァレー,カチャポアル・ヴァレー,セントラル・ヴァレー（広域）',
+ carmenere:'セントラル・ヴァレー地方:コルチャグア・ヴァレー,マイポ・ヴァレー,セントラル・ヴァレー（広域）;コキンボ地方:エルキ・ヴァレー',
+ 'mr-cs':'西オーストラリア州:マーガレット・リヴァー;南オーストラリア州:クーナワラ',
+ chinon:'ロワール:シノン,ソーミュール・シャンピニー,ブルグイユ',
+ 'niagara-cf':'オンタリオ州:ナイアガラ・ペニンシュラ',
+ 'n-rhone':'北ローヌ:クローズ・エルミタージュ,サン・ジョセフ,コルナス,コート・ロティ,エルミタージュ',
+ barossa:'南オーストラリア州:バロッサ・ヴァレー',
+ 'sa-shiraz':'南オーストラリア州:南オーストラリア（広域）,マクラーレン・ヴェイル,バロッサ・ヴァレー',
+ 'swt-syrah':'ウェスタン・ケープ:スワートランド,ステレンボッシュ',
+ cdr:'南ローヌ:コート・デュ・ローヌ,コート・デュ・ローヌ・ヴィラージュ,ジゴンダス,ヴァケラス,シャトーヌフ・デュ・パプ',
+ priorat:'カタルーニャ:プリオラート,モンサン',
+ 'swt-gren':'ウェスタン・ケープ:スワートランド',
+ roussillon:'ラングドック・ルーション:コート・デュ・ルーション,ラングドック,ペイ・ドック（IGP）',
+ 'rioja-crianza':'リオハ:リオハ（地区名なし）,リオハ・アルタ,リオハ・アラベサ,リオハ・オリエンタル',
+ 'rioja-reserva':'リオハ:リオハ（地区名なし）,リオハ・アルタ,リオハ・アラベサ,リオハ・オリエンタル',
+ 'rioja-modern':'リオハ:リオハ（地区名なし）,リオハ・アルタ,リオハ・アラベサ,リオハ・オリエンタル',
+ ribera:'カスティーリャ・イ・レオン:リベラ・デル・ドゥエロ,トロ',
+ uco:'メンドーサ:ウコ・ヴァレー（トゥプンガト、トゥヌジャン、サン・カルロス）,メンドーサ（広域）',
+ mendoza:'メンドーサ:メンドーサ（広域）,ルハン・デ・クージョ,マイプー',
+ cahors:'南西地方:カオール',
+ 'jp-merlot':'長野:長野（広域）,塩尻・桔梗ヶ原,千曲川ワインバレー;山梨:山梨（広域）',
+ 'jp-cs':'山梨:山梨（広域）,甲州市・笛吹市など;長野:長野（広域）,塩尻・桔梗ヶ原',
+ 'jp-syrah':'長野:長野（広域）,塩尻・桔梗ヶ原;山梨:山梨（広域）',
+ 'yama-sauv':'山形:山形;岡山:岡山;そのほか:そのほかの府県',
+ 'hk-zweigelt':'北海道:余市,空知,北海道（広域）',
+ zin:'カリフォルニア州:ソノマ,ロダイ,パソ・ロブレス,ナパ・ヴァレー',
+ pinotage:'ウェスタン・ケープ:ステレンボッシュ,スワートランド',
+ blaufr:'ブルゲンラント:ブルゲンラント;ニーダーエスターライヒ:カルヌントゥム',
+ douro:'ドウロ:ドウロ',
+ cinsault:'ウェスタン・ケープ:スワートランド,ステレンボッシュ',
+ valpol:'ヴェネト:ヴァルポリチェッラ,ヴァルポリチェッラ・クラッシコ',
+ ripasso:'ヴェネト:ヴァルポリチェッラ・リパッソ',
+ etna:'シチリア:エトナ',
+ nerodavola:'シチリア:シチリア（DOC・IGT）,ヴィットーリア',
+ primitivo:'プーリア:プリミティーヴォ・ディ・マンドゥーリア,プーリア・サレント（IGT）',
+ aglianico:'カンパーニア:タウラージ,カンパーニア（IGT）;バジリカータ:アリアニコ・デル・ヴルトゥレ',
+ montepulciano:'アブルッツォ:モンテプルチアーノ・ダブルッツォ',
+ dolcetto:'ピエモンテ:ドルチェット・ダルバ,ドリアーニ',
+ madiran:'南西地方:マディラン',
+ spatburg:'バーデン:バーデン;ファルツ:ファルツ;アール:アール',
+ 'hokkaido-pn':'北海道:余市,北海道（広域）,空知',
+ 'yarra-pn':'ヴィクトリア州:ヤラ・ヴァレー,モーニントン・ペニンシュラ;タスマニア:タスマニア',
+ mencia:'カスティーリャ・イ・レオン:ビエルソ;ガリシア:リベイラ・サクラ',
+ monastrell:'ムルシア:フミーリャ,イエクラ;バレンシア:アリカンテ',
+ 'wa-cs':'ワシントン州:コロンビア・ヴァレー,ワラ・ワラ・ヴァレー,ワシントン（広域）',
+ 'cl-syrah':'コキンボ地方:エルキ・ヴァレー;セントラル・ヴァレー地方:コルチャグア・ヴァレー;アコンカグア地方:カサブランカ・ヴァレー',
+ 'hb-syrah':'ホークス・ベイ:ホークス・ベイ',
+ 'stb-cs':'ウェスタン・ケープ:ステレンボッシュ',
+ 'au-gsm':'南オーストラリア州:マクラーレン・ヴェイル,バロッサ・ヴァレー'
+};
+const GSYN={'シラーズ':'シラー（シラーズ）','シラー':'シラー（シラーズ）','ガルナッチャ':'グルナッシュ（ガルナッチャ）','グルナッシュ':'グルナッシュ（ガルナッチャ）','ピノ・グリ':'ピノ・グリ（ピノ・グリージョ）','ピノ・グリージョ':'ピノ・グリ（ピノ・グリージョ）'};
+const GOVR={blaufr:'ツヴァイゲルト／ブラウフレンキッシュ'};
+const gOf=(id,grape)=>{ if(GOVR[id]) return GOVR[id]; const g=grape.replace(/（[^）]*）/g,'').replace(/主体$/,'').split('、')[0].trim(); return GSYN[g]||g; };
+const tOf=s=>s.split(';').map(x=>{const i=x.indexOf(':'); return {b:x.slice(0,i),a:x.slice(i+1).split(',').filter(Boolean)};});
+
+/* ===== 追加の質問（回答状況に応じて選ぶ） ===== */
+const YN = ['いいえ','ややそう感じる','はっきりそう感じる'];
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const warmth = p=>clamp((p.alc-1)*.6,0,2);
+const fu = (k,q,h,def,v,x={}) => ({k,s:'追加',t:'o',q,h,o:PRES,sd:.75,neg:.35,def,v,...x});
+const FU = {
+ w: [
+  fu('ripeacid','果実はよく熟しているのに、酸もはっきり高い？','高標高や海沿いの冷涼な新世界、酸の高い品種の目安です。',.5,{mueller:.3,silvaner:.4,kerner:.6,'cl-ch':1.6,'cl-sb':1.6,'nz-sb':1.6,torrontes:1.4,'au-ch':1.4,'alsace-ri':1.2,clare:.9,'stb-chenin':1,'swt-chenin':1,assyrtiko:1.5,vouvray:1.2,albarino:1.2,muscadet:.2,koshu:.2,gewurz:.1,viognier:.1,pgrigio:.2,chablis:.4,aligote:.3,'ca-ch':.5,sancerre:.5},{o:YN,neg:.2}),
+  fu('passion','パッションフルーツ・グアバ・カシスの芽は？','',.1,{'nz-sb':1.8,'cl-sb':1.2,sancerre:.4,'bdx-bl':.4,verdejo:.6}),
+  fu('lychee','ライチ・バラは？','',.1,{gewurz:1.9,torrontes:.9,viognier:.5,'pg-alsace':.4,'alsace-ri':.2}),
+  fu('apricot','アプリコット・黄桃は？','',.2,{viognier:1.8,'pg-alsace':.9,'alsace-ri':.8,'stb-chenin':.8,'ca-ch':.6,gewurz:.6,vouvray:.7,albarino:.7}),
+  fu('almond','後味に苦いアーモンドのような印象は？','',.3,{mueller:.6,silvaner:.8,gavi:1.6,soave:1.7,pgrigio:1.2,koshu:1,verdejo:1.1,torrontes:.9,gewurz:.7}),
+  fu('nutty','ナッツ・ヘーゼルナッツ・ブリオッシュは？','',.2,{'bourg-ch':1.6,'ca-ch':1.1,'cl-ch':.8,'au-ch':1,'jp-ch':.6,'stb-chenin':.7,'bdx-bl':.6,chablis:.6}),
+  fu('citrus','グレープフルーツ・ライムのような鋭い柑橘は？','',.5,{mueller:.8,silvaner:.8,kerner:1,clare:1.8,sancerre:1.4,'nz-sb':1.4,'cl-sb':1.4,hunter:1.4,rheingau:1.2,assyrtiko:1.3,gruner:1.1,chablis:1.1,aligote:1.3,albarino:1.1,muscadet:1,verdejo:1.2,viognier:.2,gewurz:.1,'ca-ch':.2,'pg-alsace':.3}),
+  fu('oily','口当たりがオイリー、とろりとしている？','',.5,{mueller:.3,kerner:.3,viognier:1.8,gewurz:1.8,'pg-alsace':1.7,'ca-ch':1.5,'alsace-ri':1.1,'stb-chenin':1.2,'bourg-ch':1.1,muscadet:.1,koshu:.2,clare:.2,sancerre:.3,'nz-sb':.3,hunter:.1,aligote:.2},{o:YN,neg:.2}),
+  fu('grassy','刈った草・ツゲ・トマトの葉は？','',.1,{'nz-sb':1.6,sancerre:1.1,'cl-sb':1.5,'bdx-bl':.9,verdejo:1,gruner:.7}),
+  fu('warmth','飲み込んだ（吐き出した）あと、頬や胸がじんわり温まる？','喉の熱さではなく、数秒後の温かさで判断します。アルコールの間接的な目安です。',warmth,{},{o:YN,neg:.2})
+ ],
+ r: [
+  fu('ripeacid','果実はよく熟しているのに、酸もはっきり高い？','高標高や冷涼な新世界、酸の高い品種の目安です。',.5,{uco:1.5,'otago-pn':1.3,'cl-pn':1,barbera:1.3,chianti:.8,nobile:.8,'mr-cs':1,ribera:.8,'swt-syrah':.9,blaufr:.9,barossa:.2,zin:.1,mendoza:.3,cdr:.3,roussillon:.3,'sa-shiraz':.3,napa:.4,priorat:.4},{o:YN,neg:.2}),
+  fu('violet','スミレの香りは？','',.3,{uco:1.7,mendoza:1.4,'n-rhone':1.4,douro:1.6,cahors:.9,'swt-syrah':.8,beaujolais:.8,barolo:.5}),
+  fu('rosetar','バラとタール（コールタール）が同時に香る？','',.1,{barolo:1.8,nobile:.4,chianti:.4}),
+  fu('sourcherry','サワーチェリー・クランベリーのような酸っぱい赤い果実は？','',.3,{chianti:1.7,nobile:1.3,'bourg-pn':1.3,barbera:1.4,'nz-pn':1.1,'oregon-pn':1.1,blaufr:1.1,barolo:1.1,'swt-gren':.8,cinsault:.8,chinon:.8}),
+  fu('cola','コーラ・ルートビアのような香りは？','',.1,{'ca-pn':1.4,'oregon-pn':.8,'otago-pn':.6,zin:.6,'cl-pn':.5}),
+  fu('jam','イチゴジャム・キルシュのような甘い赤い果実は？','',.3,{cdr:1.6,roussillon:1.5,priorat:1.3,zin:1.6,barossa:1.2,'sa-shiraz':1.1,'ca-pn':.9,mendoza:.8}),
+  fu('cassis','カシス（ブラックカラント）は？','',.3,{medoc:1.6,napa:1.6,'cl-cs':1.5,'mr-cs':1.7,chinon:.9,'niagara-cf':.8,carmenere:1,rightbank:.9,ribera:.7}),
+  fu('plum','プラム・ブラックチェリーの丸い果実味は？','',.5,{rightbank:1.5,'jp-merlot':1.3,mendoza:1.4,uco:1.2,carmenere:1.2,ribera:1,pinotage:1,zin:1}),
+  fu('smoke','燻製・ベーコン・焼いた肉は？','',.2,{'n-rhone':1.6,pinotage:1.5,'swt-syrah':1.1,barossa:.8,'sa-shiraz':.7,douro:.6,cahors:.6}),
+  fu('stemmy','茎のような青いスパイス感（全房由来）は？','',.2,{'swt-gren':1.2,cinsault:.9,'bourg-pn':.7,'swt-syrah':.8,'n-rhone':.5,beaujolais:.4}),
+  fu('buildup','2口目以降、渋みがどんどん積み上がる？','1口目ではなく、3口目あたりまでの変化で判断します。',p=>clamp(p.tannin*.22+p.acid*.12-.3,0,2),{barolo:1.8,chianti:1.5,nobile:1.4,cahors:1.4},{o:YN,neg:.2}),
+  fu('tertiary','枯れ葉・なめし皮・干しイチジクなど、熟成由来の香りは？','果実の香りとは別に、瓶や樽での熟成で生まれる香りです。',p=>clamp(p.young*.8,0,2),{}),
+  fu('warmth','飲み込んだ（吐き出した）あと、頬や胸がじんわり温まる？','喉の熱さではなく、数秒後の温かさで判断します。アルコールの間接的な目安です。',warmth,{},{o:YN,neg:.2})
+ ]
+};
+
+
+/* 追加候補の、追加の質問での典型値 */
+const FUX = {
+ 'it-ch':{almond:.6,oily:.6,citrus:.6,ripeacid:.4,nutty:.2}, macon:{nutty:.4,ripeacid:.5,citrus:.7}, 'oc-ch':{ripeacid:.3,oily:.9,citrus:.3},
+ 'nz-ch':{nutty:1,ripeacid:1.3}, 'za-ch':{nutty:1,ripeacid:1.1}, 'za-sb':{passion:1.1,grassy:1.2,citrus:1.3,ripeacid:1.3},
+ touraine:{grassy:1.4,passion:.6,citrus:1.3}, vermentino:{almond:1.2,citrus:1,oily:.4}, fiano:{nutty:.8,apricot:.7,oily:.9},
+ picpoul:{citrus:1.3,oily:.1,ripeacid:.3}, muscat:{lychee:.6,apricot:.5}, pblanc:{almond:.6,oily:.7}, godello:{nutty:.5,citrus:.9,apricot:.5},
+ 'rioja-crianza':{sourcherry:.7,plum:.8,jam:.6,tertiary:.9}, 'rioja-reserva':{plum:.6,jam:.5,tertiary:1.6}, 'rioja-modern':{plum:1.1,jam:.6,ripeacid:.7,tertiary:.4},
+ valpol:{sourcherry:1.3,jam:.5}, ripasso:{jam:1,plum:1.1}, etna:{sourcherry:1.3,smoke:.8,rosetar:.3,buildup:1.2}, nerodavola:{plum:1.2,jam:.8},
+ primitivo:{jam:1.6,plum:1.2}, aglianico:{smoke:.7,buildup:1.6,rosetar:.3}, montepulciano:{plum:1.2}, dolcetto:{violet:.8,plum:.8},
+ madiran:{buildup:1.8,cassis:.8}, spatburg:{sourcherry:1.2}, 'hokkaido-pn':{sourcherry:1.3,stemmy:.5}, 'yarra-pn':{sourcherry:1,cola:.3},
+ mencia:{violet:1.3,sourcherry:.9}, monastrell:{jam:1.2,plum:1,smoke:.7}, 'wa-cs':{cassis:1.5,plum:1,ripeacid:1}, 'cl-syrah':{violet:1.1,smoke:.9,ripeacid:.9},
+ 'hb-syrah':{violet:1.4,smoke:1,ripeacid:1.2}, 'stb-cs':{cassis:1.5,smoke:.5}, 'au-gsm':{jam:1.5},
+ 'koshu-oak':{almond:1,citrus:.6,nutty:.6,oily:.4,ripeacid:.2}, 'jp-sb':{passion:.8,grassy:1.1,citrus:1.2,ripeacid:.6}, 'jp-albarino':{citrus:1.2,apricot:.5,ripeacid:.7,almond:.6},
+ 'mba-oak':{jam:.9,plum:.6,sourcherry:.5,tertiary:.5}, 'jp-cs':{cassis:1.1,plum:.7,ripeacid:.5}, 'jp-syrah':{violet:1,smoke:.5,sourcherry:.7,ripeacid:.6}, 'yama-sauv':{sourcherry:1,cassis:1,ripeacid:.8,buildup:.8}, 'hk-zweigelt':{sourcherry:1.2,stemmy:.3}
+};
+/* ===== 特徴の読み込み ===== */
+function parse(str){
+  const o={}, t=str.trim().split(/\s+/);
+  for(let i=0;i<t.length;i++){
+    if(t[i].includes('=')){const [k,v]=t[i].split('='); const d={}; v.split(',').forEach(p=>{const [a,b]=p.split(':'); d[a]=+b}); o[k]=d;}
+    else {o[t[i]]=+t[i+1]; i++;}
+  }
+  return o;
+}
+const CANDS = RAW.map(r=>{
+  const [id,c,name,grape,country,region,alt,ex,prior,pf]=r;
+  const p={...parse(DEF[c]),...parse(pf)};
+  FU[c].forEach(f=>{const x=FUX[id]&&FUX[id][f.k]; p[f.k]=f.v[id]!=null?f.v[id]:x!=null?x:(typeof f.def==='function'?f.def(p):f.def);});
+  return {id,c,name,grape,country,region,alt,ex,prior,p,g:gOf(id,grape),tree:tOf(HIER[id]||`${region}:${region}`)};
+});
+const ALLQ = {w:[...QS.w,...FU.w], r:[...QS.r,...FU.r]};
+const QK = (color,k)=>ALLQ[color].find(q=>q.k===k);
+const optVals = q=>q.t==='o'?q.o.map((_,i)=>String(i)):q.o.map(x=>x[0]);
+
+/* ===== 確率の計算 ===== */
+const EPS=.06, TEMP=.85;
+function lik(q,cand,a){
+  if(a==null||a==='u') return 1;
+  if(q.t==='o'){
+    const mu=cand.p[q.k]; if(mu==null) return 1;
+    const sd=q.sd||.9, i=+a;
+    let L=EPS+Math.exp(-((i-mu)**2)/(2*sd*sd));
+    if(q.neg && i===0) L=(1-q.neg)*L+q.neg*.6;   // 「感じない」は弱い証拠として扱う
+    return L;
+  }
+  const d=cand.p[q.k]||{}; const keys=q.o.map(x=>x[0]);
+  const vals=keys.map(k=>(d[k]||0)+.08); const sum=vals.reduce((s,x)=>s+x,0);
+  return vals[keys.indexOf(a)]/sum*keys.length;
+}
+// 選択肢全体で正規化した「その候補ならこう答える確率」
+function pAns(q,c,a){const vs=optVals(q).map(v=>lik(q,c,v)); const s=vs.reduce((x,y)=>x+y,0); return lik(q,c,a)/s;}
+const answered = ans => Object.keys(ans).filter(k=>ans[k]!=null&&ans[k]!=='u');
+function scores(color,ans,wmap={}){
+  return CANDS.filter(c=>c.c===color).map(c=>{
+    let s=Math.log(c.prior); const contrib={};
+    answered(ans).forEach(k=>{const q=QK(color,k); if(!q) return; const v=(q.w||.85)*(wmap[k]??1)*Math.log(lik(q,c,ans[k])); contrib[k]=v; s+=v;});
+    return {c,s,contrib};
+  });
+}
+function softmax(xs,T){const m=Math.max(...xs.map(x=>x/T)); const e=xs.map(x=>Math.exp(x/T-m)); const t=e.reduce((a,b)=>a+b,0); return e.map(x=>x/t);}
+/* 整合性：ある回答を除いたほかの回答から、その回答がどれくらい予想どおりかを見る */
+function consistency(color,ans){
+  const rows=scores(color,ans), out={};
+  answered(ans).forEach(k=>{
+    const q=QK(color,k); if(!q) return;
+    const p=softmax(rows.map(r=>r.s-(r.contrib[k]||0)),TEMP);
+    const P={}; optVals(q).forEach(v=>{P[v]=rows.reduce((t,r,i)=>t+p[i]*pAns(q,r.c,v),0);});
+    const best=optVals(q).reduce((a,b)=>P[b]>P[a]?b:a);
+    out[k]={r:P[ans[k]]/P[best],exp:best};
+  });
+  return out;
+}
+function analyze(color,ans){
+  const cons=consistency(color,ans), wmap={}, flagged=[];
+  Object.entries(cons).forEach(([k,x])=>{const f=x.r<.15?.3:x.r<.35?.6:1; if(f<1){wmap[k]=f; flagged.push({k,...x,f});}});
+  flagged.sort((a,b)=>a.r-b.r);
+  const T=Math.min(TEMP*(1+.22*flagged.length),2.2);
+  const rows=scores(color,ans,wmap); const pr=softmax(rows.map(r=>r.s),T);
+  rows.forEach((r,i)=>r.pr=pr[i]); rows.sort((a,b)=>b.pr-a.pr);
+  const mean={}; answered(ans).forEach(k=>{const v=rows.map(r=>r.contrib[k]).filter(x=>x!=null); if(v.length) mean[k]=v.reduce((a,b)=>a+b,0)/v.length;});
+  rows.forEach(r=>{r.rel=Object.keys(r.contrib).map(k=>({k,d:r.contrib[k]-mean[k]})).sort((a,b)=>b.d-a.d);});
+  return {rows,cons,flagged,T};
+}
+/* 当てはまり度：その候補の典型的な答え方にどれだけ近いか（0〜1） */
+function fitOf(color,ans,c){
+  const ks=answered(ans).filter(k=>QK(color,k)); if(!ks.length) return 1;
+  return ks.reduce((t,k)=>{const q=QK(color,k); const m=Math.max(...optVals(q).map(v=>pAns(q,c,v))); return t+pAns(q,c,ans[k])/m;},0)/ks.length;
+}
+const H = p=>-p.reduce((t,x)=>t+(x>0?x*Math.log(x):0),0);
+/* 情報量がいちばん増える追加の質問を選ぶ */
+function bestFollowUp(color,ans,A,asked){
+  const p=A.rows.map(r=>r.pr), h0=H(p);
+  let best=null;
+  FU[color].forEach(q=>{
+    if(asked.has(q.k)) return;
+    let eh=0;
+    optVals(q).forEach(v=>{
+      const lk=A.rows.map(r=>pAns(q,r.c,v)); const po=lk.reduce((t,l,i)=>t+l*p[i],0); if(po<=0) return;
+      const post=lk.map((l,i)=>p[i]*Math.pow(l,.85)); const s=post.reduce((a,b)=>a+b,0);
+      eh+=po*H(post.map(x=>x/s));
+    });
+    const g=h0-eh; if(!best||g>best.g) best={k:q.k,g};
+  });
+  return best;
+}
+
+/* ===== 状態と画面の流れ ===== */
+const KEY='deduction-v2';
+const fresh=()=>({view:'start',color:null,hist:[],pos:-1,ans:{},peek:false,sid:null,at:null,from:null});
+/* ===== 端末機能（アプリ版では Capacitor のプラグイン、Web版では代替手段） ===== */
+const CAP=window.Capacitor;
+const NATIVE=!!(CAP&&CAP.isNativePlatform&&CAP.isNativePlatform());
+const plug=n=>NATIVE&&CAP.registerPlugin?CAP.registerPlugin(n):null;
+const Prefs=plug('Preferences'), Haptics=plug('Haptics'), ShareP=plug('Share'), CameraP=plug('Camera'), FS=plug('Filesystem');
+const KV={
+  c:{},
+  async init(keys){ for(const k of keys){ try{ this.c[k]=Prefs?(await Prefs.get({key:k})).value:localStorage.getItem(k); }catch(e){ this.c[k]=null; } } },
+  get(k){ return this.c[k]??null; },
+  set(k,v){ this.c[k]=v; try{ if(Prefs) Prefs.set({key:k,value:v}).catch(()=>{}); else localStorage.setItem(k,v); }catch(e){} },
+  remove(k){ delete this.c[k]; try{ if(Prefs) Prefs.remove({key:k}).catch(()=>{}); else localStorage.removeItem(k); }catch(e){} },
+  async getAsync(k){ if(k in this.c) return this.c[k]; try{ const v=Prefs?(await Prefs.get({key:k})).value:localStorage.getItem(k); this.c[k]=v; return v; }catch(e){ return null; } }
+};
+const tap=()=>{ if(Haptics) Haptics.impact({style:'LIGHT'}).catch(()=>{}); };
+function toast(msg){ let t=document.getElementById('toast'); if(!t){t=document.createElement('div');t.id='toast';t.setAttribute('role','status');document.body.appendChild(t);} t.textContent=msg; t.className='show'; clearTimeout(t._h); t._h=setTimeout(()=>t.className='',2200); }
+async function shareText(title,text){
+  try{ if(ShareP){ await ShareP.share({title,text,dialogTitle:title}); return; }
+       if(navigator.share){ await navigator.share({title,text}); return; } }catch(e){ if(e&&e.name==='AbortError') return; }
+  try{ await navigator.clipboard.writeText(text); toast('結果をコピーしました'); }
+  catch(e){ let t=document.getElementById('shareText'); if(!t){ t=document.createElement('textarea'); t.id='shareText'; t.readOnly=true; t.rows=5; t.style.cssText='width:100%;margin-top:10px;font:inherit;font-size:13px;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink)'; const bt=document.querySelector('.btns'); (bt||app).after(t); } t.value=text; t.focus(); t.select(); toast('テキストを選択しました。コピーして使ってください'); }
+}
+/* ラベル写真：長辺720pxのJPEGに縮めて保存 */
+function shrink(dataUrl){ return new Promise(res=>{ const im=new Image(); im.onload=()=>{ const m=720, r=Math.min(1,m/Math.max(im.width,im.height)); const cv=document.createElement('canvas'); cv.width=Math.round(im.width*r); cv.height=Math.round(im.height*r); cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height); res(cv.toDataURL('image/jpeg',.72)); }; im.onerror=()=>res(null); im.src=dataUrl; }); }
+function pickPhoto(){
+  if(CameraP) return CameraP.getPhoto({resultType:'dataUrl',quality:75,width:1200,correctOrientation:true,source:'PROMPT',promptLabelHeader:'ラベル写真',promptLabelPhoto:'写真ライブラリから選ぶ',promptLabelPicture:'カメラで撮る',promptLabelCancel:'キャンセル'}).then(r=>shrink(r.dataUrl)).catch(()=>null);
+  return new Promise(res=>{ const i=document.createElement('input'); i.type='file'; i.accept='image/*'; i.setAttribute('capture','environment'); i.onchange=()=>{ const f=i.files&&i.files[0]; if(!f) return res(null); const fr=new FileReader(); fr.onload=()=>shrink(fr.result).then(res); fr.readAsDataURL(f); }; i.click(); });
+}
+const PHOTO=id=>'deduction-photo:'+id;
+
+/* 履歴（この端末に保存） */
+const HKEY='deduction-history-v1';
+function hLoad(){try{const l=JSON.parse(KV.get(HKEY)||'[]'); return Array.isArray(l)?l:[];}catch(e){return [];}}
+function hSave(l){KV.set(HKEY,JSON.stringify(l.slice(0,300)));}
+function hUpsert(e){const l=hLoad(); const i=l.findIndex(x=>x.id===e.id); if(i>=0) l[i]={...l[i],...e}; else l.unshift(e); hSave(l);}
+const fmtDate=t=>new Date(t).toLocaleString('ja-JP',{year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+let S=fresh();
+function save(){KV.set(KEY,JSON.stringify(S));}
+function load(){try{const x=JSON.parse(KV.get(KEY)||'null'); if(x&&x.color&&Array.isArray(x.hist)) return x;}catch(e){} return null;}
+const MAX_FU=8, MAX_RC=2;
+function nextStep(){
+  const c=S.color, inHist=new Set(S.hist.map(h=>h.k));
+  const base=QS[c].find(q=>!inHist.has(q.k)); if(base) return {k:base.k,kind:'base'};
+  const nFu=S.hist.filter(h=>h.kind==='fu').length;
+  const A=analyze(c,S.ans);
+  if(nFu<MAX_FU && (nFu<4 || A.rows[0].pr<.85)){
+    const b=bestFollowUp(c,S.ans,A,inHist); if(b && b.g>(nFu<4?.005:.015)) return {k:b.k,kind:'fu'};
+  }
+  const rcDone=new Set(S.hist.filter(h=>h.kind==='rc').map(h=>h.k));
+  if(rcDone.size<MAX_RC){const f=A.flagged.find(x=>x.r<.15&&!rcDone.has(x.k)); if(f) return {k:f.k,kind:'rc'};}
+  return null;
+}
+function advance(){
+  if(S.pos<S.hist.length-1){S.pos++; return;}
+  const n=nextStep(); if(!n){S.view='res'; return;}
+  S.hist.push(n); S.pos=S.hist.length-1;
+}
+const app=document.getElementById('app'), homeBtn=document.getElementById('home'), histBtn=document.getElementById('histBtn'), libBtn=document.getElementById('libBtn');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const label=(q,a)=>a==='u'?'わからない':(q.t==='o'?q.o[+a]:(q.o.find(x=>x[0]===a)||[])[1]);
+const pct=x=>x>=.995?'99':x<.005?'<1':String(Math.round(x*100));
+const qtext=q=>q.q.replace(/は？$|？$/,'');
+
+function render(){
+  document.body.className=S.color==='w'?'w':'';
+  homeBtn.hidden=S.view==='start';
+  histBtn.hidden=S.view==='hist'; libBtn.hidden=S.view==='lib';
+  if(S.view==='lib') document.body.className=(S.lib&&S.lib.color==='w')?'w':'';
+  if(S.view==='start') renderStart(); else if(S.view==='q') renderQ(); else if(S.view==='hist') renderHistory(); else if(S.view==='lib') renderLib(); else renderResult();
+  window.scrollTo(0,0);
+}
+function renderStart(){
+  const prev=load();
+  const nw=CANDS.filter(c=>c.c==='w').length, nr=CANDS.filter(c=>c.c==='r').length;
+  app.innerHTML=`
+   <h2>グラスの中のワインを、問いを重ねて絞り込みます。</h2>
+   <p class="muted">外観から香り、味わいへと約30問に答えたあと、回答に応じて追加の質問が出ます。最後に候補を3つまで絞って可能性の高さを％で示します。どの問いにも「わからない」を選べます。</p>
+   ${prev&&prev.view==='q'?`<div class="resume"><span>${prev.color==='w'?'白':'赤'}の回答が途中まで残っています（${answered(prev.ans).length}問）。</span><button class="btn" id="resume">続きから</button></div>`:''}
+   <div class="start-choice">
+     <button class="glass w" data-c="w"><div class="dot"></div><b>白</b><span>${QS.w.length}問＋追加・候補${nw}種</span></button>
+     <button class="glass r" data-c="r"><div class="dot"></div><b>赤</b><span>${QS.r.length}問＋追加・候補${nr}種</span></button>
+   </div>
+   <p><button class="link" id="toLib">品種や産地から典型的な回答を調べる（逆引き）</button></p>
+   ${hLoad().length?`<p><button class="link" id="toHist">これまでの記録を見る（${hLoad().length}件）</button></p>`:''}
+   <details class="a2hs"><summary>ホーム画面に追加して、アプリのように使う</summary>
+     <ol>
+       <li><b>iPhone（Safari）</b>：画面下の共有ボタン（四角から矢印が出たアイコン）を押し、「ホーム画面に追加」を選びます。</li>
+       <li><b>Android（Chrome）</b>：右上の「︙」を押し、「ホーム画面に追加」を選びます。</li>
+       <li>ホーム画面のアイコンから開くと、記録や履歴はブラウザで開いたときと同じものが使われます。</li>
+     </ol></details>
+   <ul class="notes">
+     <li>アルコール・酸味・タンニンなどの段階は Carnet-du-Vin の尺度と同じです。</li>
+     <li>候補は1万円未満で、ヴィノテラスカップやソムリエ2次試験に出やすいワインに絞っています。リストにないワインでは、近いスタイルの候補が表示されます。</li>
+     <li>樽や香りを「感じない」と答えた場合は、「ない」と断言したものとしては扱いません。</li>
+     <li>ほかの回答と食い違う回答は影響を小さくして計算し、必要なら最後に見直しをお願いします。</li>
+   </ul>`;
+  app.querySelectorAll('.glass').forEach(b=>b.onclick=()=>{S={...fresh(),view:'q',color:b.dataset.c}; advance(); save(); render();});
+  const r=document.getElementById('resume'); if(r) r.onclick=()=>{S=prev;render();};
+  const th=document.getElementById('toHist'); if(th) th.onclick=openHistory;
+  document.getElementById('toLib').onclick=()=>openLib();
+}
+function renderQ(){
+  const cur=S.hist[S.pos], q=QK(S.color,cur.k), a=S.ans[q.k];
+  const opts=optVals(q).map((v,i)=>[v,q.t==='o'?q.o[i]:q.o[i][1]]);
+  const n=opts.length;
+  const lv=i=>q.t==='o'&&n>2&&q.o!==YN?`<span class="lv" aria-hidden="true">${Array.from({length:n},(_,j)=>`<i class="${j<=i?'on':''}"></i>`).join('')}</span>`:'';
+  const nBase=QS[S.color].length, nFu=S.hist.slice(0,S.pos+1).filter(h=>h.kind==='fu').length;
+  const prog = cur.kind==='base' ? `${S.pos+1} / ${nBase}` : cur.kind==='fu' ? `追加の質問 ${nFu}` : '見直し';
+  const width = cur.kind==='base' ? S.pos/nBase*100 : 100;
+  const sec = cur.kind==='base' ? q.s : cur.kind==='fu' ? '追加の質問' : '見直し';
+  let note='';
+  if(cur.kind==='fu') note=`<div class="note">ここまでの回答で候補を見分けるのにいちばん役立つ問いです。</div>`;
+  if(cur.kind==='rc'){const cs=consistency(S.color,S.ans)[q.k]; note=`<div class="note warn">この回答は、ほかの回答から予想される「${esc(label(q,cs?cs.exp:a))}」前後と食い違っています。もう一度グラスで確かめてください。感じたままで構いません。今の回答は「${esc(label(q,a))}」です。</div>`;}
+  let peek='';
+  if(S.peek){const rows=analyze(S.color,S.ans).rows.slice(0,5); peek=`<div class="peek"><span class="muted">途中経過</span><ol>${rows.map(r=>`<li>${esc(r.c.name)}　${pct(r.pr)}%</li>`).join('')}</ol></div>`;}
+  app.innerHTML=`
+   <div class="prog"><span>${prog}</span><div class="bar"><i style="width:${width}%"></i></div></div>
+   <div class="sec">${esc(sec)}</div>
+   <div class="q" id="qt">${esc(q.q)}</div>
+   ${note}
+   <div class="help">${esc(q.h||'')}</div>
+   <div class="opts" role="radiogroup" aria-labelledby="qt">
+     ${opts.map(([v,l],i)=>`<button class="opt${a===v?' sel':''}" data-v="${v}" role="radio" aria-checked="${a===v}"><span class="n">${i+1}</span>${lv(i)}<span>${esc(l)}</span></button>`).join('')}
+     <button class="opt unk${a==='u'?' sel':''}" data-v="u" role="radio" aria-checked="${a==='u'}"><span class="n">0</span><span>わからない</span></button>
+   </div>
+   <div class="nav">
+     <button class="link" id="back">${S.pos===0?'白・赤を選び直す':'前の問いに戻る'}</button>
+     <button class="link" id="peekBtn">${S.peek?'途中経過を隠す':'途中経過を見る'}</button>
+   </div>${peek}`;
+  app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>choose(b.dataset.v));
+  document.getElementById('back').onclick=back;
+  document.getElementById('peekBtn').onclick=()=>{S.peek=!S.peek;save();render();};
+}
+function choose(v){
+  tap();
+  const cur=S.hist[S.pos], changed=S.ans[cur.k]!==v;
+  S.ans[cur.k]=v;
+  if(changed && cur.kind!=='rc' && S.pos<S.hist.length-1){
+    // 答えが変わったら、それ以降の追加の質問と見直しは選び直す
+    const keep=S.hist.slice(0,S.pos+1);
+    S.hist.slice(S.pos+1).forEach(h=>{if(h.kind==='base') keep.push(h); else if(h.kind==='fu') delete S.ans[h.k];});
+    S.hist=keep;
+  }
+  advance(); save(); render();
+}
+function back(){ if(S.pos<=0){S.view='start';} else S.pos--; save(); render(); }
+document.addEventListener('keydown',e=>{
+  if(S.view!=='q'||e.metaKey||e.ctrlKey||e.altKey) return;
+  const q=QK(S.color,S.hist[S.pos].k), vs=optVals(q);
+  if(e.key==='0') return choose('u');
+  const k=+e.key; if(k>=1&&k<=vs.length) choose(vs[k-1]);
+  if(e.key==='Backspace') back();
+});
+
+/* 2つの候補の差が大きい問い（未回答・わからないを優先） */
+function splitters(a,b,color){
+  const out=[];
+  ALLQ[color].forEach(q=>{
+    if(q.t!=='o') return;
+    const x=a.p[q.k], y=b.p[q.k]; if(x==null||y==null) return;
+    const d=Math.abs(x-y)/(q.sd||.9); if(d<1.1) return;
+    const lab=v=>q.o[Math.max(0,Math.min(q.o.length-1,Math.round(v)))];
+    if(lab(x)===lab(y)) return;
+    out.push({q,d:d+(S.ans[q.k]==null||S.ans[q.k]==='u'?1:0),txt:`${esc(a.name)}なら「${esc(lab(x))}」、${esc(b.name)}なら「${esc(lab(y))}」`});
+  });
+  return out.sort((m,n)=>n.d-m.d);
+}
+function typical(q,c){const mu=c.p[q.k]; return q.t==='o'?q.o[Math.max(0,Math.min(q.o.length-1,Math.round(mu)))]:q.o.slice().sort((m,n)=>((mu||{})[n[0]]||0)-((mu||{})[m[0]]||0))[0][1];}
+function GROUPS(color){
+  const m=new Map(); CANDS.filter(c=>c.c===color).forEach(c=>{ if(!m.has(c.g)) m.set(c.g,new Set()); m.get(c.g).add(c.country); });
+  return [...m.entries()].sort((a,b)=>a[0].localeCompare(b[0],'ja')).map(([g,set])=>[g,[...set].sort((a,b)=>a.localeCompare(b,'ja'))]);
+}
+function renderResult(){
+  const color=S.color, A=analyze(color,S.ans), rows=A.rows;
+  const top=rows.slice(0,3), rest=1-top.reduce((s,r)=>s+r.pr,0);
+  const asked=S.hist.map(h=>h.k).filter((k,i,arr)=>arr.indexOf(k)===i);
+  const nAns=answered(S.ans).length;
+  const card=(r,idx)=>{
+    const pos=r.rel.filter(x=>x.d>.15).slice(0,4), neg=r.rel.slice().reverse().filter(x=>x.d<-.4).slice(0,2);
+    const chip=(x,cls)=>{const q=QK(color,x.k); return `<span class="chip${cls}">${esc(qtext(q))}：${esc(label(q,S.ans[x.k]))}</span>`;};
+    return `<article class="cand${idx===0?' first':''}">
+      <div class="top"><div class="pct">${pct(r.pr)}<small>%</small></div>
+        <div><div class="cname">${esc(r.c.name)}</div><div class="cmeta">${esc(r.c.grape)}｜${esc(r.c.country)}</div></div></div>
+      <div class="pbar"><i style="width:${Math.max(1,r.pr*100)}%"></i></div>
+      <dl><dt>品種</dt><dd>${esc(r.c.grape)}</dd><dt>国</dt><dd>${esc(r.c.country)}</dd>
+        <dt>産地</dt><dd><b>${esc(r.c.region)}</b>${r.c.alt?`<span class="muted">（ほかに ${esc(r.c.alt)}）</span>`:''}</dd>
+        ${r.c.ex?`<dt>出題例</dt><dd>${esc(r.c.ex)}</dd>`:''}</dl>
+      ${pos.length?`<div class="ev"><b>合っている回答</b><br>${pos.map(x=>chip(x,'')).join('')}</div>`:''}
+      ${neg.length?`<div class="ev"><b>合わない回答</b><br>${neg.map(x=>chip(x,' neg')).join('')}</div>`:''}
+    </article>`;
+  };
+  const lvl = A.flagged.length===0?'高い':A.flagged.length<=2?'ふつう':'低い';
+  if(!S.sid){S.sid='h'+Date.now(); S.at=Date.now();}
+  hUpsert({id:S.sid,at:S.at,color,ans:S.ans,hist:S.hist,top:top.map(r=>({id:r.c.id,name:r.c.name,pr:r.pr})),integ:lvl});
+  save();
+  const saved=hLoad().find(x=>x.id===S.sid)||{};
+  const integ = `<section class="box"><h3>回答の整合性：${lvl}</h3>${A.flagged.length?`<p class="muted" style="margin:0 0 8px">次の回答はほかの回答と食い違っていたため、影響を小さくして計算しました。食い違いが多いほど、％は控えめに出ます。</p><ul>${A.flagged.map(f=>{const q=QK(color,f.k); return `<li><b>${esc(qtext(q))}</b>：あなたの回答「${esc(label(q,S.ans[f.k]))}」、ほかの回答からの予想「${esc(label(q,f.exp))}」（影響を${f.f<.5?'大きく':''}減らしました）</li>`;}).join('')}</ul>`:`<p class="muted" style="margin:0">回答どうしに大きな食い違いはありませんでした。</p>`}</section>`;
+  const sp=[...splitters(top[0].c,top[1].c,color).slice(0,2),...splitters(top[0].c,top[2].c,color).slice(0,2)];
+  const all=CANDS.filter(c=>c.c===color);
+  const kindOf=k=>S.hist.find(h=>h.k===k&&h.kind!=='rc')?.kind;
+  app.innerHTML=`
+   <div class="res-head"><h2>候補は、この3つです。</h2>
+   <p class="muted">${asked.length}問中${nAns}問の回答から計算しました。％は候補リスト（${color==='w'?'白':'赤'}${all.length}種）全体の中での相対的な可能性で、上位3つの合計は${pct(1-rest)}%です。</p></div>
+   ${top[0].pr<.3?`<div class="note warn">どの候補にもはっきりとは当てはまりませんでした。候補リスト（${color==='w'?'白':'赤'}${all.length}種）にないワインの可能性もあります。リストは1万円未満で大会や2次試験に出やすいワインに絞っているため、マイナーな品種や甘口・熟成したワインは入っていません。</div>`:''}
+   ${top.map(card).join('')}
+   ${integ}
+   ${sp.length?`<section class="box"><h3>もう一度確かめると差がつくところ</h3><ul>${sp.map(x=>`<li><b>${esc(qtext(x.q))}</b>：${x.txt}</li>`).join('')}</ul></section>`:''}
+   <section class="box others"><h3>4位以下</h3><ol>${rows.slice(3,8).map(r=>`<li><span>${esc(r.c.name)}</span><span class="muted">${pct(r.pr)}%</span></li>`).join('')}</ol></section>
+   <section class="box"><h3>答え合わせ</h3>
+     <p class="muted" style="margin:0">実際のワインを「品種×国」「産地（広域）」「アペラシオン」の順に選ぶと、それぞれの段階で何位だったかを表示します。途中までの選択でも記録できます。</p>
+     <label class="muted" for="tG" style="font-size:13px">1. 品種 × 国</label>
+     <select id="tG"><option value="">選ぶ</option>${GROUPS(color).map(([g,arr])=>`<optgroup label="${esc(g)}">${arr.map(co=>`<option value="${esc(g+'|'+co)}">${esc(g)} × ${esc(co)}</option>`).join('')}</optgroup>`).join('')}<option value="other">リストにないワイン</option></select>
+     <div id="tRest"></div>
+     <div id="truthOut" aria-live="polite"></div>
+     <label class="muted" for="memo" style="font-size:13px">メモ（ワイン名・生産者・ヴィンテージなど）</label>
+     <input type="text" id="memo" value="${esc(saved.memo||'')}" placeholder="例：ドイツ ミュラー・トゥルガウ トロッケン 2023">
+     <div class="photo" id="photoBox"><button class="btn ghost" id="photoBtn">ラベル写真を添付</button></div></section>
+   <details><summary>自分の回答を見る</summary><div class="ans">${asked.map(k=>{const q=QK(color,k); return `<span>${kindOf(k)==='fu'?'［追加］':''}${esc(q.q)}</span><span>${esc(S.ans[k]==null?'未回答':label(q,S.ans[k]))}</span>`;}).join('')}</div></details>
+   <div class="btns"><button class="btn" id="again">次のワインへ</button><button class="btn ghost" id="shareBtn">結果を共有</button><button class="btn ghost" id="edit">回答を見直す</button>${S.from==='hist'?'<button class="btn ghost" id="backHist">履歴に戻る</button>':''}</div>`;
+  const ALIAS={rioja:'rioja-crianza'};
+  const rankOf=id=>rows.findIndex(r=>r.c.id===id)+1;
+  const bestIn=set=>set.map(c=>rankOf(c.id)).filter(x=>x>0).sort((x,y)=>x-y)[0]||null;
+  const opt=(v,t,cur)=>`<option value="${esc(v)}"${cur===v?' selected':''}>${esc(t)}</option>`;
+  let tp=saved.tp||null;
+  if(!tp&&saved.truth==='other') tp={g:'other'};
+  if(!tp&&saved.truth){const c=CANDS.find(x=>x.id===(ALIAS[saved.truth]||saved.truth)); if(c) tp={g:c.g+'|'+c.country,b:c.tree[0].b,a:c.tree[0].a[0],id:c.id};}
+  tp=tp||{};
+  const drawTruth=(store)=>{
+    const rest=document.getElementById('tRest'), out=document.getElementById('truthOut');
+    document.getElementById('tG').value=tp.g||'';
+    if(!tp.g){rest.innerHTML='';out.textContent=''; if(store) hUpsert({id:S.sid,tp:null,truth:null,truthName:null,rank:null}); return;}
+    if(tp.g==='other'){rest.innerHTML='';out.innerHTML='<p class="muted" style="margin:10px 0 0">リストにないワインとして記録しました。ワイン名はメモに残せます。</p>'; if(store) hUpsert({id:S.sid,tp,truth:'other',truthName:'リストにないワイン',rank:null}); return;}
+    const [g,co]=tp.g.split('|'); const grp=all.filter(c=>c.g===g&&c.country===co);
+    if(!grp.length){rest.innerHTML='';out.innerHTML='<p class="muted" style="margin:10px 0 0">候補リストの更新で見つからなくなりました。選び直してください。</p>';return;}
+    let html='', set=grp; const steps=[{t:`品種×国（${g} × ${co}）`,r:bestIn(grp)}];
+    const broads=[...new Set(grp.flatMap(c=>c.tree.map(t=>t.b)))];
+    if(tp.b&&tp.b!=='?'&&!broads.includes(tp.b)) tp={g:tp.g};
+    if(tp.a&&tp.a!=='?'&&!grp.some(c=>c.tree.some(t=>t.b===tp.b&&t.a.includes(tp.a)))) tp={g:tp.g,b:tp.b};
+    html+=`<label class="muted" for="tB" style="font-size:13px">2. 産地（広域）</label><select id="tB"><option value="">選ぶ</option>${broads.map(x=>opt(x,x,tp.b)).join('')}${opt('?','わからない・リストにない産地',tp.b)}</select>`;
+    if(tp.b&&tp.b!=='?'){
+      set=grp.filter(c=>c.tree.some(t=>t.b===tp.b)); steps.push({t:`産地（${tp.b}）`,r:bestIn(set)});
+      const apps=[...new Set(set.flatMap(c=>c.tree.filter(t=>t.b===tp.b).flatMap(t=>t.a)))];
+      html+=`<label class="muted" for="tA" style="font-size:13px">3. アペラシオン・地区</label><select id="tA"><option value="">選ぶ</option>${apps.map(x=>opt(x,x,tp.a)).join('')}${opt('?','わからない・リストにないアペラシオン',tp.a)}</select>`;
+      if(tp.a&&tp.a!=='?'){ set=set.filter(c=>c.tree.some(t=>t.b===tp.b&&t.a.includes(tp.a))); steps.push({t:`アペラシオン（${tp.a}）`,r:bestIn(set)}); }
+    }
+    const ready=tp.b==='?'||(tp.b&&tp.a);
+    if(ready&&set.length>1){
+      html+=`<label class="muted" for="tS" style="font-size:13px">4. スタイル（わかれば）</label><select id="tS"><option value="">わからない</option>${set.map(c=>opt(c.id,c.name,tp.id)).join('')}</select>`;
+    }
+    if(tp.id&&!set.some(c=>c.id===tp.id)) tp.id=null;
+    if(tp.id) set=set.filter(c=>c.id===tp.id);
+    const fin=ready&&set.length===1?set[0]:null;
+    if(fin&&tp.id) steps.push({t:`スタイル（${fin.name}）`,r:rankOf(fin.id)});
+    rest.innerHTML=html;
+    const rank=steps[steps.length-1].r;
+    const tgt=fin||set.slice().sort((x,y)=>rankOf(x.id)-rankOf(y.id))[0];
+    const r=rows[rankOf(tgt.id)-1];
+    const miss=ready&&r?r.rel.slice().reverse().filter(x=>x.d<-.3).slice(0,3).map(x=>{const q=QK(color,x.k); return `<li>${esc(qtext(q))}：あなたは「${esc(label(q,S.ans[q.k]))}」、典型的には「${esc(typical(q,r.c))}」</li>`;}):[];
+    out.innerHTML=`<ul style="margin:10px 0 6px">${steps.map(x=>`<li>${esc(x.t)}：<b>${x.r?x.r+'位':'—'}</b></li>`).join('')}</ul><p class="muted" style="margin:0 0 6px;font-size:13px">各段階で、当てはまる候補のうち最も上位だった順位です。</p>${miss.length?`<p class="muted" style="margin:0">典型的な特徴とずれた回答（${esc(r.c.name)}）</p><ul>${miss.join('')}</ul>`:''}`;
+    const tname=[`${g}×${co}`,tp.b&&tp.b!=='?'?tp.b:null,tp.a&&tp.a!=='?'?tp.a:null].filter(Boolean).join('｜')+(fin&&tp.id?`（${fin.name}）`:'');
+    if(store) hUpsert({id:S.sid,tp,truth:fin?fin.id:null,truthName:tname,rank,truthPr:fin?r.pr:null});
+    const tB=document.getElementById('tB'); if(tB) tB.onchange=e=>{tp={g:tp.g,b:e.target.value||undefined}; drawTruth(true);};
+    const tA=document.getElementById('tA'); if(tA) tA.onchange=e=>{tp={g:tp.g,b:tp.b,a:e.target.value||undefined}; drawTruth(true);};
+    const tS=document.getElementById('tS'); if(tS) tS.onchange=e=>{tp.id=e.target.value||null; drawTruth(true);};
+  };
+  document.getElementById('tG').onchange=e=>{tp={g:e.target.value||undefined}; drawTruth(true);};
+  drawTruth(false);
+  document.getElementById('memo').onchange=e=>hUpsert({id:S.sid,memo:e.target.value.trim()});
+  const bh=document.getElementById('backHist'); if(bh) bh.onclick=openHistory;
+  document.getElementById('again').onclick=()=>{S=fresh();save();render();};
+  document.getElementById('shareBtn').onclick=()=>{
+    const e=hLoad().find(x=>x.id===S.sid)||{};
+    const head=e.memo?`${e.memo}\n`:'';
+    const truth=e.rank?`\n正解（${e.truthName}）は${e.rank}位でした。`:'';
+    shareText('Deduction ワイン推理ナビ',`${head}Deduction ワイン推理ナビの推理（${color==='w'?'白':'赤'}・回答の整合性 ${lvl}）\n${top.map((r,i)=>`${i+1}. ${r.c.name}（${r.c.region}）${pct(r.pr)}%`).join('\n')}${truth}`);
+  };
+  const showPhoto=src=>{ const box=document.getElementById('photoBox'); if(!box) return;
+    box.innerHTML=src?`<img src="${src}" alt="ラベル写真"><div><button class="link" id="photoChg">撮り直す</button>　<button class="link" id="photoDel">写真を外す</button></div>`:'<button class="btn ghost" id="photoBtn">ラベル写真を添付</button>';
+    const add=async()=>{ const d=await pickPhoto(); if(!d) return; KV.set(PHOTO(S.sid),d); hUpsert({id:S.sid,photo:true}); showPhoto(d); };
+    const pb=document.getElementById('photoBtn'); if(pb) pb.onclick=add;
+    const pc=document.getElementById('photoChg'); if(pc) pc.onclick=add;
+    const pd=document.getElementById('photoDel'); if(pd) pd.onclick=()=>{ KV.remove(PHOTO(S.sid)); hUpsert({id:S.sid,photo:false}); showPhoto(null); };
+  };
+  showPhoto(null); if(saved.photo) KV.getAsync(PHOTO(S.sid)).then(d=>{ if(d) showPhoto(d); });
+  document.getElementById('edit').onclick=()=>{S.view='q';S.pos=0;save();render();};
+}
+function openHistory(){ if(S.view==='q'||S.view==='res'){save();} S={...fresh(),view:'hist'}; render(); }
+function renderHistory(){
+  const l=hLoad();
+  const judged=l.filter(x=>x.rank), n=judged.length;
+  const r1=judged.filter(x=>x.rank===1).length, r3=judged.filter(x=>x.rank<=3).length;
+  const stat=(v,t)=>`<div class="stat"><b>${v}</b><span>${t}</span></div>`;
+  app.innerHTML=`
+   <h2>これまでの記録</h2>
+   <p class="muted">結果を表示したワインが、この端末に保存されます。開くと、その時の回答で結果を表示し直します。</p>
+   ${n?`<div class="stats">${stat(n+'本','答え合わせ済み')}${stat(Math.round(r1/n*100)+'%','正解が1位')}${stat(Math.round(r3/n*100)+'%','正解が3位以内')}</div>`:''}
+   ${l.length?l.map(e=>{
+     const t=e.top&&e.top[0];
+     const title=e.memo||(e.truthName&&e.truth!=='other'?e.truthName:'')||(t?`推理：${t.name}`:'記録');
+     const rank=e.rank?`<span class="rank${e.rank===1?' hit':''}">正解は${e.rank}位</span>`:(e.truth==='other'?'<span class="rank">リスト外</span>':'');
+     return `<div class="hitem">${e.photo?`<img class="thumb" data-ph="${e.id}" alt="">`:`<span class="dot ${e.color}"></span>`}<div class="body">
+       <div class="t">${esc(title)}${rank}</div>
+       <div class="s">${fmtDate(e.at)}・${e.color==='w'?'白':'赤'}・整合性 ${esc(e.integ||'')}</div>
+       <div class="s">${(e.top||[]).map((x,i)=>`${i+1}. ${esc(x.name)} ${pct(x.pr)}%`).join('　')}</div></div>
+       <div class="acts"><button class="link" data-open="${e.id}">開く</button><button class="link" data-del="${e.id}">削除</button></div></div>`;
+   }).join(''):'<p>まだ記録がありません。最初のワインを推理すると、ここに表示されます。</p>'}
+   <div class="btns"><button class="btn" id="newWine">新しいワインを推理する</button></div>
+   <section class="box"><h3>バックアップ</h3>
+     <p class="muted" style="margin:0 0 8px">記録と写真を1つのファイルに書き出し、機種変更のときなどに読み込めます。</p>
+     <div class="btns" style="margin-top:0"><button class="btn ghost" id="expBtn">書き出す</button><button class="btn ghost" id="impBtn">読み込む</button></div></section>`;
+  app.querySelectorAll('[data-ph]').forEach(im=>KV.getAsync(PHOTO(im.dataset.ph)).then(d=>{ if(d) im.src=d; }));
+  document.getElementById('expBtn').onclick=exportBackup;
+  document.getElementById('impBtn').onclick=importBackup;
+  app.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{
+    const e=hLoad().find(x=>x.id===b.dataset.open); if(!e) return;
+    S={...fresh(),view:'res',color:e.color,hist:e.hist||[],pos:0,ans:e.ans||{},sid:e.id,at:e.at,from:'hist'}; render();
+  });
+  app.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{
+    if(b.dataset.armed){hSave(hLoad().filter(x=>x.id!==b.dataset.del)); KV.remove(PHOTO(b.dataset.del)); render();}
+    else {b.dataset.armed='1'; b.textContent='削除する'; b.style.color='var(--claret)';}
+  });
+  document.getElementById('newWine').onclick=()=>{S=fresh();render();};
+}
+histBtn.onclick=openHistory;
+async function exportBackup(){
+  const l=hLoad(), photos={};
+  for(const e of l){ if(e.photo){ const d=await KV.getAsync(PHOTO(e.id)); if(d) photos[e.id]=d; } }
+  const json=JSON.stringify({app:'Deduction',v:1,at:Date.now(),history:l,photos});
+  const name=`deduction-backup-${new Date().toISOString().slice(0,10)}.json`;
+  try{
+    if(FS&&ShareP){ const w=await FS.writeFile({path:name,data:json,directory:'CACHE',encoding:'utf8'}); await ShareP.share({title:'Deduction のバックアップ',files:[w.uri],dialogTitle:'バックアップの保存先'}); return; }
+    const file=new File([json],name,{type:'application/json'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){ await navigator.share({files:[file],title:'Deduction のバックアップ'}); return; }
+    const a=document.createElement('a'); a.href=URL.createObjectURL(file); a.download=name; document.body.appendChild(a); a.click(); a.remove();
+    toast('バックアップを書き出しました');
+  }catch(e){ if(!(e&&e.name==='AbortError')) toast('書き出せませんでした'); }
+}
+function importBackup(){
+  const i=document.createElement('input'); i.type='file'; i.accept='application/json,.json';
+  i.onchange=()=>{ const f=i.files&&i.files[0]; if(!f) return; const fr=new FileReader();
+    fr.onload=()=>{ try{ const d=JSON.parse(fr.result); if(!d||!Array.isArray(d.history)) throw 0;
+        const cur=hLoad(), ids=new Set(cur.map(x=>x.id)); let n=0;
+        d.history.forEach(e=>{ if(e&&e.id&&!ids.has(e.id)){ cur.push(e); n++; } });
+        cur.sort((a,b)=>(b.at||0)-(a.at||0)); hSave(cur);
+        Object.entries(d.photos||{}).forEach(([id,v])=>{ if(typeof v==='string'&&v.startsWith('data:image/')) KV.set(PHOTO(id),v); });
+        toast(`${n}件の記録を読み込みました`); render();
+      }catch(e){ toast('このファイルは読み込めませんでした'); } };
+    fr.readAsText(f); };
+  i.click();
+}
+/* ===== 逆引き：品種・産地から典型的な回答を見る ===== */
+function openLib(o={}){ if(S.view==='q'||S.view==='res') save(); const c=o.color||S.color||'r'; S={...fresh(),view:'lib',lib:{color:c,country:'',grape:'',text:'',id:null,...o}}; render(); }
+function typLabel(q,c){
+  const v=c.p[q.k];
+  if(q.t==='o'){ if(v==null) return '—'; const n=q.o.length, x=clamp(v,0,n-1), lo=Math.floor(x), hi=Math.min(n-1,lo+1), f=x-lo;
+    return f<.3?q.o[lo]:f>.7?q.o[hi]:`${q.o[lo]}〜${q.o[hi]}`; }
+  const d=v||{}; const srt=q.o.slice().sort((a,b)=>(d[b[0]]||0)-(d[a[0]]||0)); const a=d[srt[0][0]]||0, b=d[srt[1][0]]||0;
+  if(!a) return '特徴なし'; return b>=a*.6?`${srt[0][1]}／${srt[1][1]}`:srt[0][1];
+}
+function dist(a,b,color){
+  let t=0; ALLQ[color].forEach(q=>{ if(q.t==='o'){const x=a.p[q.k],y=b.p[q.k]; if(x!=null&&y!=null) t+=((x-y)/(q.o.length-1))**2;}
+    else {const da=a.p[q.k]||{},db=b.p[q.k]||{}; const sa=q.o.reduce((s,o)=>s+(da[o[0]]||0),0)||1, sb=q.o.reduce((s,o)=>s+(db[o[0]]||0),0)||1; t+=.25*q.o.reduce((s,o)=>s+Math.abs((da[o[0]]||0)/sa-(db[o[0]]||0)/sb),0)**2;}});
+  return Math.sqrt(t);
+}
+function renderLib(){
+  const L=S.lib, color=L.color;
+  if(L.id){
+    const c=CANDS.find(x=>x.id===L.id);
+    const secs=[['外観',QS[color].filter(q=>q.s==='外観')],['香り',QS[color].filter(q=>q.s==='香り')],['味わい',QS[color].filter(q=>q.s==='味わい'||q.s==='総合')],['追加の質問で使う特徴',FU[color]]];
+    const row=q=>{const n=q.o.length, v=c.p[q.k]; const bar=q.t==='o'&&v!=null&&q.o!==YN&&n>2?`<div class="lvb" aria-hidden="true">${Array.from({length:n},(_,j)=>`<i class="${j<=Math.round(v)?'on':''}"></i>`).join('')}</div>`:'';
+      return `<tr><td>${esc(qtext(q))}</td><td>${esc(typLabel(q,c))}${bar}</td></tr>`;};
+    const near=CANDS.filter(x=>x.c===color&&x.id!==c.id).map(x=>({x,d:dist(c,x,color)})).sort((a,b)=>a.d-b.d).slice(0,3);
+    app.innerHTML=`
+     <p style="margin-top:14px"><button class="link" id="libBack">一覧に戻る</button></p>
+     <h2 style="margin-top:4px">${esc(c.name)}</h2>
+     <dl><dt>品種</dt><dd>${esc(c.grape)}</dd><dt>国</dt><dd>${esc(c.country)}</dd>
+       <dt>産地</dt><dd>${c.tree.map(t=>`<b>${esc(t.b)}</b>：${esc(t.a.join('、'))}`).join('<br>')}</dd>
+       ${c.ex?`<dt>出題例</dt><dd>${esc(c.ex)}</dd>`:''}</dl>
+     <p class="muted" style="font-size:13px;margin-top:10px">このワインを典型的なスタイルで飲んだときに、推理ナビの各問いでどう答えるかの目安です。「A〜B」はその間くらい、「A／B」はどちらもあり得ることを表します。</p>
+     <table class="tt">${secs.map(([t,qs])=>`<tr><th colspan="2">${t}</th></tr>${qs.map(row).join('')}`).join('')}</table>
+     <section class="box"><h3>似ているワインとの見分け方</h3><ul>${near.map(({x})=>{const sp=splitters(c,x,color).slice(0,2);
+        return `<li><button class="link" data-go="${x.id}" style="padding:0">${esc(x.name)}</button>${sp.length?`：${sp.map(z=>`<b>${esc(qtext(z.q))}</b>は${z.txt}`).join('。')}`:''}</li>`;}).join('')}</ul></section>`;
+    document.getElementById('libBack').onclick=()=>{S.lib.id=null;render();};
+    app.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{S.lib.id=b.dataset.go;render();});
+    return;
+  }
+  const pool=CANDS.filter(x=>x.c===color);
+  const countries=[...new Set(pool.map(x=>x.country))];
+  const grapes=[...new Set(pool.filter(x=>!L.country||x.country===L.country).map(x=>x.grape))].sort((a,b)=>a.localeCompare(b,'ja'));
+  const t=(L.text||'').trim();
+  const list=pool.filter(x=>(!L.country||x.country===L.country)&&(!L.grape||x.grape===L.grape)&&(!t||[x.name,x.grape,x.region,x.alt,x.country].join(' ').includes(t)));
+  app.innerHTML=`
+   <h2>逆引き</h2>
+   <p class="muted">品種や産地を選ぶと、そのワインの典型的な回答を確認できます。</p>
+   <div class="seg" role="group" aria-label="色"><button data-col="w" class="${color==='w'?'on':''}">白</button><button data-col="r" class="${color==='r'?'on':''}">赤</button></div>
+   <div class="filters">
+     <select id="fCountry" aria-label="国"><option value="">すべての国</option>${countries.map(x=>`<option${x===L.country?' selected':''}>${esc(x)}</option>`).join('')}</select>
+     <select id="fGrape" aria-label="品種"><option value="">すべての品種</option>${grapes.map(x=>`<option${x===L.grape?' selected':''}>${esc(x)}</option>`).join('')}</select>
+     <input type="text" id="fText" placeholder="名前・産地で絞り込む（例：シャブリ、オタゴ）" value="${esc(L.text||'')}">
+   </div>
+   <p class="muted" style="font-size:13px;margin:10px 0 0">${list.length}件</p>
+   ${list.map(x=>`<button class="libitem" data-id="${x.id}"><b>${esc(x.name)}</b><span>${esc(x.grape)}｜${esc(x.country)}｜${esc(x.region)}</span></button>`).join('')||'<p>当てはまるワインがありません。</p>'}`;
+  app.querySelectorAll('[data-col]').forEach(b=>b.onclick=()=>{S.lib={color:b.dataset.col,country:'',grape:'',text:'',id:null};render();});
+  document.getElementById('fCountry').onchange=e=>{L.country=e.target.value;L.grape='';render();};
+  document.getElementById('fGrape').onchange=e=>{L.grape=e.target.value;render();};
+  const ft=document.getElementById('fText'); ft.oninput=e=>{L.text=e.target.value; const pos=e.target.selectionStart; render(); const n=document.getElementById('fText'); n.focus(); n.setSelectionRange(pos,pos);};
+  app.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{L.id=b.dataset.id;render();});
+}
+libBtn.onclick=()=>openLib();
+homeBtn.onclick=()=>{ if(S.view==='hist'||S.view==='lib'){S=fresh();} else {S.view='start';save();} render(); };
+KV.init([KEY,HKEY]).then(render);
+</script>
+</body>
+</html>
