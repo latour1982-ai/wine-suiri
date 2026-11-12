@@ -689,6 +689,14 @@ function bestFollowUp(color,ans,A,asked){
   return best;
 }
 
+/* 品種ごと・国ごとの可能性：同じ品種（国）の候補の確率を足し合わせる */
+function marginals(rows){
+  const g={}, c={};
+  rows.forEach(r=>{ g[r.c.g]=(g[r.c.g]||0)+r.pr; c[r.c.country]=(c[r.c.country]||0)+r.pr; });
+  const srt=o=>Object.entries(o).sort((a,b)=>b[1]-a[1]).map(([name,pr])=>({name,pr}));
+  return {grapes:srt(g),countries:srt(c)};
+}
+
 /* ===== ヴィンテージの目安 =====
    候補ごとの「市場に出回る典型的な飲み頃の年数（収穫からの年数）」を出発点に、
    外観の若さ・色調・縁の色・熟成香などがその候補の典型よりどれだけ進んでいるかで補正し、
@@ -823,7 +831,7 @@ function renderStart(){
   const nw=CANDS.filter(c=>c.c==='w').length, nr=CANDS.filter(c=>c.c==='r').length;
   app.innerHTML=`
    <h2>グラスの中のワインを、問いを重ねて絞り込みます。</h2>
-   <p class="muted">外観から香り、味わいへと約30問に答えたあと、回答に応じて追加の質問が出ます。最後に候補を3つまで絞って可能性の高さを％で示し、ヴィンテージの目安も出します。どの問いにも「わからない」を選べます。</p>
+   <p class="muted">外観から香り、味わいへと約30問に答えたあと、回答に応じて追加の質問が出ます。最後に候補を3つまで絞って可能性の高さを％で示し、品種・生産国ごとの可能性とヴィンテージの目安も出します。どの問いにも「わからない」を選べます。</p>
    ${prev&&prev.view==='q'?`<div class="resume"><span>${prev.color==='w'?'白':'赤'}の回答が途中まで残っています（${answered(prev.ans).length}問）。</span><button class="btn" id="resume">続きから</button></div>`:''}
    <div class="start-choice">
      <button class="glass w" data-c="w"><div class="dot"></div><b>白</b><span>${QS.w.length}問＋追加・候補${nw}種</span></button>
@@ -941,11 +949,16 @@ function renderResult(){
   const lvl = A.flagged.length===0?'高い':A.flagged.length<=2?'ふつう':'低い';
   if(!S.sid){S.sid='h'+Date.now(); S.at=Date.now();}
   const V=ageEstimate(color,S.ans,rows,S.at);
-  hUpsert({id:S.sid,at:S.at,color,ans:S.ans,hist:S.hist,top:top.map(r=>({id:r.c.id,name:r.c.name,pr:r.pr})),integ:lvl,vg:{best:V.best,lo:V.lo,hi:V.hi}});
+  { const m=marginals(rows); hUpsert({id:S.sid,at:S.at,color,ans:S.ans,hist:S.hist,top:top.map(r=>({id:r.c.id,name:r.c.name,pr:r.pr})),integ:lvl,vg:{best:V.best,lo:V.lo,hi:V.hi},mg:{g:m.grapes[0].name,c:m.countries[0].name}}); }
   save();
   const saved=hLoad().find(x=>x.id===S.sid)||{};
   const integ = `<section class="box"><h3>回答の整合性：${lvl}</h3>${A.flagged.length?`<p class="muted" style="margin:0 0 8px">次の回答はほかの回答と食い違っていたため、影響を小さくして計算しました。食い違いが多いほど、％は控えめに出ます。</p><ul>${A.flagged.map(f=>{const q=QK(color,f.k); return `<li><b>${esc(qtext(q))}</b>：あなたの回答「${esc(label(q,S.ans[f.k]))}」、ほかの回答からの予想「${esc(label(q,f.exp))}」（影響を${f.f<.5?'大きく':''}減らしました）</li>`;}).join('')}</ul>`:`<p class="muted" style="margin:0">回答どうしに大きな食い違いはありませんでした。</p>`}</section>`;
   const sp=[...splitters(top[0].c,top[1].c,color).slice(0,2),...splitters(top[0].c,top[2].c,color).slice(0,2)];
+  const MG=marginals(rows);
+  const mlist=(arr,n)=>`<ol style="margin:4px 0 0;padding-left:1.4em">${arr.slice(0,n).map(x=>`<li>${esc(x.name)}　<span class="muted">${pct(x.pr)}%</span></li>`).join('')}</ol>`;
+  const marg=`<section class="box"><h3>品種・生産国ごとの可能性</h3>
+     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px"><div><b style="font-size:13px">品種</b>${mlist(MG.grapes,4)}</div><div><b style="font-size:13px">生産国</b>${mlist(MG.countries,4)}</div></div>
+     <p class="muted" style="margin:10px 0 0;font-size:13px">同じ品種、同じ国の候補の％を足し合わせた値です。試験やコンテストでは品種・生産国・収穫年を別々に答えるので、候補が割れているときはこちらの1位を優先してください。</p></section>`;
   const AGEN={young:'外観の印象（若さ）',hue:'色調',tint:color==='w'?'縁の色合い':'補助的な色合い',fstate:'果実の状態',tertiary:'熟成由来の香り',honey:'蜂蜜・蜜蝋の香り',petrol:'ペトロール'};
   const yrs=Object.keys(V.P).map(Number).filter(y=>V.P[y]>=.01).sort((a,b)=>a-b), pmax=Math.max(...yrs.map(y=>V.P[y]));
   const ageTxt=V.age<1.5?'1年ほど':V.age<10?`約${Math.round(V.age)}年`:'10年以上';
@@ -961,6 +974,7 @@ function renderResult(){
    <p class="muted">${asked.length}問中${nAns}問の回答から計算しました。％は候補リスト（${color==='w'?'白':'赤'}${all.length}種）全体の中での相対的な可能性で、上位3つの合計は${pct(1-rest)}%です。</p></div>
    ${top[0].pr<.3?`<div class="note warn">どの候補にもはっきりとは当てはまりませんでした。候補リスト（${color==='w'?'白':'赤'}${all.length}種）にないワインの可能性もあります。リストは1万円未満で大会や2次試験に出やすいワインに絞っているため、マイナーな品種や甘口・熟成したワインは入っていません。</div>`:''}
    ${top.map(card).join('')}
+   ${marg}
    ${vint}
    ${integ}
    ${sp.length?`<section class="box"><h3>もう一度確かめると差がつくところ</h3><ul>${sp.map(x=>`<li><b>${esc(qtext(x.q))}</b>：${x.txt}</li>`).join('')}</ul></section>`:''}
@@ -1018,9 +1032,11 @@ function renderResult(){
     const tgt=fin||set.slice().sort((x,y)=>rankOf(x.id)-rankOf(y.id))[0];
     const r=rows[rankOf(tgt.id)-1];
     const miss=ready&&r?r.rel.slice().reverse().filter(x=>x.d<-.3).slice(0,3).map(x=>{const q=QK(color,x.k); return `<li>${esc(qtext(q))}：あなたは「${esc(label(q,S.ans[q.k]))}」、典型的には「${esc(typical(q,r.c))}」</li>`;}):[];
+    const gR=MG.grapes.findIndex(x=>x.name===g)+1, cR=MG.countries.findIndex(x=>x.name===co)+1;
+    steps.unshift({t:`品種だけ（${g}・合算）`,r:gR},{t:`生産国だけ（${co}・合算）`,r:cR});
     out.innerHTML=`<ul style="margin:10px 0 6px">${steps.map(x=>`<li>${esc(x.t)}：<b>${x.r?x.r+'位':'—'}</b></li>`).join('')}</ul><p class="muted" style="margin:0 0 6px;font-size:13px">各段階で、当てはまる候補のうち最も上位だった順位です。</p>${miss.length?`<p class="muted" style="margin:0">典型的な特徴とずれた回答（${esc(r.c.name)}）</p><ul>${miss.join('')}</ul>`:''}`;
     const tname=[`${g}×${co}`,tp.b&&tp.b!=='?'?tp.b:null,tp.a&&tp.a!=='?'?tp.a:null].filter(Boolean).join('｜')+(fin&&tp.id?`（${fin.name}）`:'');
-    if(store) hUpsert({id:S.sid,tp,truth:fin?fin.id:null,truthName:tname,rank,truthPr:fin?r.pr:null});
+    if(store) hUpsert({id:S.sid,tp,truth:fin?fin.id:null,truthName:tname,rank,truthPr:fin?r.pr:null,gRank:gR||null,cRank:cR||null});
     const tB=document.getElementById('tB'); if(tB) tB.onchange=e=>{tp={g:tp.g,b:e.target.value||undefined}; drawTruth(true);};
     const tA=document.getElementById('tA'); if(tA) tA.onchange=e=>{tp={g:tp.g,b:tp.b,a:e.target.value||undefined}; drawTruth(true);};
     const tS=document.getElementById('tS'); if(tS) tS.onchange=e=>{tp.id=e.target.value||null; drawTruth(true);};
@@ -1038,7 +1054,7 @@ function renderResult(){
     const e=hLoad().find(x=>x.id===S.sid)||{};
     const head=e.memo?`${e.memo}\n`:'';
     const truth=e.rank?`\n正解（${e.truthName}）は${e.rank}位でした。`:'';
-    shareText('Deduction ワイン推理ナビ',`${head}Deduction ワイン推理ナビの推理（${color==='w'?'白':'赤'}・回答の整合性 ${lvl}）\n${top.map((r,i)=>`${i+1}. ${r.c.name}（${r.c.region}）${pct(r.pr)}%`).join('\n')}\nヴィンテージの目安：${V.best}年（${V.lo===V.hi?V.best:V.lo+'〜'+V.hi}年）${truth}`);
+    shareText('Deduction ワイン推理ナビ',`${head}Deduction ワイン推理ナビの推理（${color==='w'?'白':'赤'}・回答の整合性 ${lvl}）\n${top.map((r,i)=>`${i+1}. ${r.c.name}（${r.c.region}）${pct(r.pr)}%`).join('\n')}\n品種：${MG.grapes[0].name} ${pct(MG.grapes[0].pr)}%／生産国：${MG.countries[0].name} ${pct(MG.countries[0].pr)}%\nヴィンテージの目安：${V.best}年（${V.lo===V.hi?V.best:V.lo+'〜'+V.hi}年）${truth}`);
   };
   const showPhoto=src=>{ const box=document.getElementById('photoBox'); if(!box) return;
     box.innerHTML=src?`<img src="${src}" alt="ラベル写真"><div><button class="link" id="photoChg">撮り直す</button>　<button class="link" id="photoDel">写真を外す</button></div>`:'<button class="btn ghost" id="photoBtn">ラベル写真を添付</button>';
@@ -1055,12 +1071,14 @@ function renderHistory(){
   const l=hLoad();
   const judged=l.filter(x=>x.rank), n=judged.length;
   const r1=judged.filter(x=>x.rank===1).length, r3=judged.filter(x=>x.rank<=3).length;
+  const gj=l.filter(x=>x.gRank), g1=gj.filter(x=>x.gRank===1).length, c1=gj.filter(x=>x.cRank===1).length;
   const vj=l.filter(x=>x.vint&&x.vg), v1=vj.filter(x=>Math.abs(x.vint-x.vg.best)<=1).length;
   const stat=(v,t)=>`<div class="stat"><b>${v}</b><span>${t}</span></div>`;
   app.innerHTML=`
    <h2>これまでの記録</h2>
    <p class="muted">結果を表示したワインが、この端末に保存されます。開くと、その時の回答で結果を表示し直します。</p>
    ${n?`<div class="stats">${stat(n+'本','答え合わせ済み')}${stat(Math.round(r1/n*100)+'%','正解が1位')}${stat(Math.round(r3/n*100)+'%','正解が3位以内')}</div>`:''}
+   ${gj.length?`<p class="muted" style="margin:-4px 0 6px;font-size:13px">品種・生産国ごとの合算：答え合わせした${gj.length}本のうち、品種が1位だったのは${g1}本（${Math.round(g1/gj.length*100)}%）、生産国が1位だったのは${c1}本（${Math.round(c1/gj.length*100)}%）です。</p>`:''}
    ${vj.length?`<p class="muted" style="margin:-4px 0 12px;font-size:13px">ヴィンテージ：答え合わせした${vj.length}本のうち${v1}本（${Math.round(v1/vj.length*100)}%）が目安の±1年以内でした。</p>`:''}
    ${l.length?l.map(e=>{
      const t=e.top&&e.top[0];
